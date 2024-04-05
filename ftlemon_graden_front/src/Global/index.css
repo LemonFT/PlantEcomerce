@@ -1,0 +1,21 @@
+
+*{
+    padding: 0px;
+    margin: 0px;
+    box-sizing: border-box;
+    font-family: sans-serif;
+}
+a{
+    text-decoration: none;
+    margin: 0px 20px;
+    color: black;
+}
+
+body::-webkit-scrollbar{
+    display: none;
+    width: 0;
+}
+::placeholder {
+    user-select: none;
+    font-size: 13px;
+}

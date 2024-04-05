@@ -1,0 +1,18 @@
+.admin {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    padding-left: 20vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: black;
+    .container {
+        width: 75vw;
+        height: 90vh;
+        margin-right: 1vw;
+        margin-left: 1vw;
+        border-radius: 10px;
+        background-color: white;
+    }
+}

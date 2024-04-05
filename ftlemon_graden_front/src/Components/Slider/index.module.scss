@@ -1,0 +1,23 @@
+.box-slider{
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    height: 38px;
+    span{
+        font-weight: bold;
+    }
+    .slider{
+        width: 200px;
+    }
+    .from-price, .to-price{
+        width: 20px;
+    }
+    .from-price{
+        margin-right: 10px;
+    }
+    .to-price{
+        margin-left: 10px;
+    }
+}

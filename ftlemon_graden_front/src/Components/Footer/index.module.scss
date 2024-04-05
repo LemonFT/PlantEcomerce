@@ -1,0 +1,122 @@
+:root {
+    --mainColor: rgba(193, 220, 220, 1);
+    --mainColorDark: rgb(9, 119, 119);
+    --mainColorDarkPlus: rgb(141, 213, 213);
+    --colorFooter: rgb(5, 60, 60);
+}
+.footer {
+    * {
+        color: white;
+        user-select: none;
+    }
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    height: 36vh;
+    width: 100vw;
+    background-color: var(--colorFooter);
+    padding: 5%;
+    z-index: 10;
+    .cl_1 {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 20px;
+        width: 25%;
+        .potted_plant {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2px;
+            height: 100px;
+            span {
+                transform: translateX(-20px);
+                font-family: cursive;
+            }
+            img {
+                width: 100px;
+                height: 100px;
+            }
+        }
+        .groups_icon_contact {
+            span{
+                cursor: pointer;
+            }
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            gap: 15px;
+            margin-top: 10px;
+        }
+    }
+    .cl_2 {
+        width: 30%;
+        .title{
+            height: 30px;
+            h3{
+                text-align: center;
+                font-family: cursive;
+            }
+        }
+        .links {
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 10px;
+            font-family: sans-serif;
+            font-weight: 100;
+        }
+    }
+    .cl_3 {
+        width: 35%;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        flex-direction: column;
+        .title{
+            height: 30px;
+            h3{
+                font-family: cursive;
+                text-align: center;
+            }
+        }
+        .email_subscribe{
+            margin-top: 30px;
+            height: 103px;
+            .box_ip{
+                width: 320px;
+                height: 48px;
+                border: 1px solid white;
+                display: flex;
+                border-radius: 5px;
+                input{
+                    width: 240px;
+                    height: 100%;
+                    outline: none;
+                    border: none;
+                    background-color: transparent;
+                    color: white;
+                    padding-left: 10px;
+                }
+                input::placeholder{
+                    color: white;
+                }
+                button{
+                    width: 80px;
+                    height: 100%;
+                    border: none;
+                    background-color: white;
+                    color: var(--colorFooter);
+                    text-transform: uppercase;
+                    font-size: 11px;
+                    padding: 2px;
+                    font-weight: bold;
+                    cursor: pointer;
+                }
+            }
+        }
+    }
+}

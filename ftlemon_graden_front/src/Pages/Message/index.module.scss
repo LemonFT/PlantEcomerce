@@ -1,0 +1,96 @@
+.message{
+    position: fixed;
+    top: 80px;
+    right: 0px;
+    width: 50vw;
+    height: calc(100vh - 80px);
+    background-color: whitesmoke;
+    border-radius: 10px;
+    border-top-right-radius: 0px;
+    border: 0.3px solid gray;
+    overflow: hidden;
+    z-index: 9;
+    transition: all .7s;
+    
+    .header{
+        background-color: lightblue;
+        height: 60px;
+        .info{
+            display: flex;
+            justify-content: left;
+            align-items: center;
+            img{
+                width: 100px;
+            }
+        }
+    }
+    .container{
+        position: relative;
+        padding: 10px;
+        height: calc(100vh - 125px - 60px);
+        overflow-y: scroll;
+        .admin, .customer{
+            position: relative;
+            display: flex;
+            justify-content: center;
+            flex-direction: column;
+            margin: 15px 0px;
+            p{
+                background-color: lightblue;
+                padding: 5px 10px;
+                max-width: 35vw;
+                border-radius: 5px;
+            }
+            span{
+                width: 100%;
+                bottom: 0px;
+                text-align: center;
+                padding: 10px;
+                font-size: 12px;
+            }
+        }
+        .admin {
+            align-items: flex-start;
+            div{
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            img{
+                width: 50px;
+                border-radius: 50%;
+                object-fit: cover;
+                border: 1px solid lightblue;
+                margin-right: 10px;
+            }
+        }
+        .customer{
+            align-items: flex-end;
+        }
+    }
+    .edit_text{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: absolute;
+        bottom: 0px;
+        left: 0px;
+        width: 50vw;
+        height: 45px;
+        border-top: 1px solid black;
+        input{
+            width: 44vw;
+            height: 45px;
+            border: none;
+            outline: none;
+            padding: 0px 10px;
+            background-color: transparent;
+        }
+        button{
+            height: 45px;
+            width: 5vw;
+            background: transparent;
+            border: 0px;
+        }
+    }
+}

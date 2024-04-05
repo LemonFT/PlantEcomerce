@@ -1,0 +1,95 @@
+:root{
+    --mainColor: rgba(193, 220, 220, 1);
+    --mainColorDark: rgb(9, 119, 119);
+    --mainColorDarkPlus: rgb(141, 213, 213);
+}
+.header{
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    height: 80px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 10;
+    background-color: white;
+    .header-left, .header-right{
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        height: 80px;
+    }
+    .header-left{
+        .lg{
+            pointer-events: none;
+            img{
+                transform: scale(25%);
+                cursor: pointer;
+            }
+        }
+        .menu{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            .item-menu{
+                position: relative;
+                margin: 0px 10px;
+                overflow: hidden;
+                padding: 15px 0px;
+                .line-bottom{
+                    position: absolute;
+                    bottom: 0px;
+                    left: 0px;
+                    width: 100%;
+                    height: 4px;
+                    border-radius: 10px;
+                    background-color: var(--mainColorDark);
+                    transform: translateX(-100%);
+                    transition: all .3s;
+                }
+            }
+            .item-menu:hover{
+                .line-bottom{
+                    transform: translateX(0);
+                }
+                a{
+                    color: black;
+                }
+            }
+        }
+    }
+    .header-right{
+        margin-right: 5vw;
+        a{
+            height: max-content;
+        }
+        span{
+            padding: 20px 15px 15px 15px;
+            border-radius: 50%;
+            cursor: pointer;
+            &:hover{
+                background-color: var(--mainColorDarkPlus);
+            }
+        }
+        .line-vertical{
+            margin: 10px;
+            background-color: transparent !important;
+        }
+    }
+    @media only screen and (max-width: 1100px) {
+        .header-left{
+            .menu{
+                display: none;
+            }
+        }
+    }
+    @media only screen and (max-width: 800px) {
+        .header-left{
+            .lg{
+                display: none;
+            }
+        }
+    }
+}
+

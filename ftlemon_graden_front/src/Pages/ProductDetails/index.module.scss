@@ -1,0 +1,233 @@
+.container {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 100px;
+    width: 100vw;
+    height: 100vh;
+    padding: 10px;
+    padding-top: 90px;
+    background-image: linear-gradient(to top, #fff1eb 0%, #ace0f9 100%);
+    overflow: hidden;
+    .main_image {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 40vw;
+        transform: translate(-100px, -60px);
+        img {
+            height: 60vh;
+            object-fit: cover;
+            border-radius: 10px;
+            box-shadow: 0px 0px 4px 4px rgba(0, 0, 0, 0.5);
+            transition: all 0.6s;
+        }
+    }
+
+    .info{
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        flex-direction: column;
+        transform: translateY(-100px);
+        width: 40vw;
+        min-width: 500px;
+        .name{
+            text-transform: uppercase;
+            font-weight: bold;
+            text-align: center;
+            padding: 20px;
+        }
+        .category{
+            p{
+                font-size: 16px;
+            }
+        }
+        .desc{
+            p{
+                width: 350px;
+                padding-top: 10px;
+                font-size: 14px;
+                text-align: left;
+                letter-spacing: 1px;
+            }
+        }
+        .add_to_cart{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 50px;
+            flex-wrap: wrap;
+            gap: 50px;
+            .amount {
+                width: 150px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                gap: 5px;
+                .number {
+                    width: 70px;
+                    text-align: center;
+                    input {
+                        user-select: none;
+                        width: 50px;
+                        height: 50px;
+                        border-radius: 5px;
+                        border: none;
+                        outline: none;
+                        text-align: center;
+                    }
+                }
+                .plus, .minus{
+                    cursor: pointer;
+                    user-select: none;
+                }
+            }
+            .btn{
+                .addcart{
+                    width: 160px;
+                    height: 40px;
+                    border: 2px solid var(--mainColorDark);
+                    border-radius: 5px;
+                    background-color: white;
+                    color: var(--mainColorDark);
+                    font-size: 16px;
+                    font-weight: bold;
+                    text-transform: uppercase;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    &:hover {
+                        background-color: var(--mainColorDark);
+                        color: white;
+                        border-color: var(--mainColorDark);
+                    }
+                    &:active {
+                        transform: translateY(2px);
+                        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+                    }
+                }
+                .soldout{
+                    width: 160px;
+                    height: 40px;
+                    border-radius: 5px;
+                    border: none;
+                    background-color: rgb(180, 175, 175);
+                    color: white;
+                    font-size: 16px;
+                    font-weight: bold;
+                    text-transform: uppercase;
+                    cursor: no-drop;
+                }
+            }
+        }
+    }
+    .sub_images {
+        position: absolute;
+        display: flex;
+        justify-content: left;
+        align-items: center;
+        gap: 20px;
+        width: 480px;
+        padding: 10px;
+        bottom: 2vh;
+        right: 7vw;
+        overflow-x: hidden;
+        background-color: transparent;
+        transition: all 0.5s;
+
+        img {
+            width: 100px;
+            height: 110px;
+            border-radius: 10px;
+            box-shadow: 0 0 5px 5px rgba(0,0,0,0.4);
+        }
+        .sub_image:last-child{
+            animation-name: comBackLastArr;
+            animation-duration: .4s;
+            animation-timing-function: linear;
+            animation-fill-mode: 1 forwards;
+            z-index: 2;
+            transition: all 0.3s;
+        }
+        .sub_image:nth-child(1), .sub_image:nth-child(2)
+        ,.sub_image:nth-child(3){
+            animation-name: rightToLeft;
+            animation-timing-function: ease-in-out;
+            animation-fill-mode: 1 forwards;
+            transition: all 0.3s;
+        }
+        .sub_image:nth-child(1){
+            height: 120px;
+            animation-duration: 0.3s;
+        }
+        .sub_image:nth-child(2){
+            animation-duration: 0.5s;
+        }
+        .sub_image:nth-child(3){
+            animation-duration: 0.7s;
+        }
+
+    }
+    @keyframes rightToLeft {
+        from{
+            transform: translateX(150px);
+        }to{
+            transform: translateX(0);
+        }
+    }
+    @keyframes comBackLastArr {
+        from{
+            transform: translateY(-100px);
+            opacity: 0.5;
+        }to{
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+}
+@media only screen and (max-width: 800px) {
+    .container{
+        .info{
+            position: relative;
+            transform: translateY(0px);
+            margin-bottom: 5px;
+            .add_to_cart{
+                margin-top: 10px !important;
+            }
+        }
+    }
+    .main_image{
+        position: relative !important;
+        transform: translate(-100px, -60px);
+        img{
+            height: 40vh !important;
+        }
+    }
+    .sub_images{
+        flex-direction: column;
+        align-items: flex-end !important;
+        height: 340px !important;
+        right: 5px !important;
+        bottom: 5px !important;
+        overflow: hidden;
+    }
+}
+@media only screen and (max-width: 900px) and (min-width: 800px){
+    .info{
+        position: absolute;
+        left: 20px;
+        background-color: transparent;
+        z-index: 2;
+    }
+    .main_image{
+        position: absolute;
+        right: 20px;
+        transform: translate(0);
+        img{
+            width: 200px;
+            height: 300px !important;
+        }
+    }
+}

@@ -1,0 +1,88 @@
+:root {
+    --mainColor: rgba(193, 220, 220, 1);
+    --mainColorDark: rgb(9, 119, 119);
+    --mainColorDarkPlus: rgb(141, 213, 213);
+    --colorFooter: rgb(5, 60, 60);
+}
+.sidebar {
+    position: fixed;
+    top: 80px;
+    right: 0px;
+    width: 300px;
+    height: calc(100vh - 80px);
+    background-color: var(--mainColorDark);
+    padding: 10px;
+    transition: all .3s;
+    z-index: 10;
+    .logo {
+        position: fixed;
+        bottom: 20px;
+        display: flex;
+        justify-content: left;
+        align-items: center;
+        display: none;
+        img {
+            width: 150px;
+            height: 80px;
+            object-fit: cover;
+        }
+    }
+    .if_user {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        h4 {
+            margin: 20px 0px;
+            color: white;
+        }
+    }
+    .links {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        margin-top: 50px;
+        gap: 20px;
+        a {
+            color: white;
+            border: 2px solid transparent;
+            padding: 4px 20px;
+            transition: all 0.2s;
+            &:hover {
+                border-bottom: 2px solid white;
+            }
+        }
+    }
+    .in_out_btn {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 100px;
+        button {
+            width: 150px;
+            height: 40px;
+            border-radius: 10px;
+            border: none;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all .3s;
+            &:hover{
+                transform: translate(0px,-2px);
+                background-color: black;
+                color: whitesmoke;
+            }
+        }
+    }
+    @media only screen and (max-width: 720px) {
+        .logo {
+            display: block;
+        }
+    }
+}

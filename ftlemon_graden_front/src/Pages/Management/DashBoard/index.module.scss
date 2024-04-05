@@ -1,0 +1,102 @@
+.dashboard{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 30px;
+    padding: 2% 3%;
+    .topic-1 {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start; 
+        flex-direction: column;
+        gap: 20px;
+        width: 100%;
+        height: 20%;
+        .topic-1-title {
+          width: 100%;
+          padding-left: 20px; 
+          font-size: 24px;
+          color: #336633;
+          font-weight: bold;
+          font-family: Arial, sans-serif;
+          text-transform: uppercase; 
+          letter-spacing: 1px; 
+          margin-bottom: 10px;
+        }
+      
+        .topic-1-container {
+          display: flex;
+          justify-content: space-around;
+          align-items: center;
+          gap: 30px;
+          width: 100%;
+      
+          .topic-1-item {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 10px;
+            padding: 20px;
+            width: 30%;
+            height: 150px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5); 
+      
+            .title {
+              width: 100%;
+              text-align: left;
+              font-size: 18px;
+              color: rgb(142, 228, 142); 
+              font-weight: bold;
+              font-family: Arial, sans-serif;
+              letter-spacing: 0.5px; 
+            }
+      
+            .data {
+              width: 100%;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+      
+              .total {
+                font-family: 'Gill Sans', sans-serif;
+                color: gray; // Màu xanh lá cây
+                font-size: 25px;
+                font-weight: bold;
+      
+                span {
+                  font-size: 16px;
+                  font-weight: 400;
+                  margin-left: 5px;
+                  color: #336633; // Màu xanh lá cây
+                }
+              }
+            }
+          }
+        }
+      }
+      
+    .topic-2-3{
+        display: flex;
+        justify-content: left;
+        align-items: center;
+        gap: 30px;
+        width: 100%;
+        height: 400px;
+        .topic-2{
+            width: 65%;
+            height: 80%;
+            padding: 20px;
+            border: .5px solid gray;
+            border-radius: 10px;
+        }
+        .topic-3{
+            width: 30%;
+            height: 80%;
+            border: .5px solid gray;
+            border-radius: 10px;
+        }
+    }
+}
