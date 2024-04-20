@@ -101,8 +101,9 @@ public class ProductRep {
     }
 
     public boolean insertProduct(Product product) {
-        String sql = "INSERT INTO product (code, name, category_product_id, description, amount, price, voucher) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        return jdbcTemplate.update(sql, product.getCode(), product.getName(), product.getCategory_product_id(),
+        String sql = "INSERT INTO product (code, name,image,category_product_id, description, amount, price, voucher) VALUES (?,?, ?, ?, ?, ?, ?, ?)";
+        return jdbcTemplate.update(sql, product.getCode(), product.getName(), product.getImage(),
+                product.getCategory_product_id(),
                 product.getDescription(), product.getAmount(), product.getPrice(), product.getVoucher()) > 0;
     }
 

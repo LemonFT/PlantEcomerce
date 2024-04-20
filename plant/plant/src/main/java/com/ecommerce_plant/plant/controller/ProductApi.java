@@ -54,14 +54,14 @@ public class ProductApi {
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String min,
             @RequestParam(required = false) String max,
-            @RequestParam(required = false) int[] category_ids,
+            @RequestParam(required = false) int[] categoryIds,
             @PathVariable int numpage,
             @PathVariable int numperpage) {
         List<Product> products = productServer.getProductOfPageNum(search, min, max,
-                category_ids, numpage, numperpage);
-        int total_amountFilter = productServer.getTotalAmountFilter(search, min, max,
-                category_ids);
-        return ResponseEntity.ok().body(new ProductModelMap(products, total_amountFilter));
+                categoryIds, numpage, numperpage);
+        int totalAmountFilter = productServer.getTotalAmountFilter(search, min, max,
+                categoryIds);
+        return ResponseEntity.ok().body(new ProductModelMap(products, totalAmountFilter));
     }
 
     @GetMapping("api/product/max-price")
@@ -71,23 +71,26 @@ public class ProductApi {
 
     @PostMapping("authenticed/api/product")
     public ResponseEntity<?> insertProduct(@RequestBody Product product) {
+        System.err.println(product.toString());
         String result = productServer.insertProduct(product);
-        return result.equals("Insert successfully") ? ResponseEntity.ok().body(result)
+        return (result != null && result.equals("Insert successfully")) ? ResponseEntity.ok().body(result)
                 : ResponseEntity.badRequest().body(result);
     }
 
     @PutMapping("authenticed/api/product")
     public ResponseEntity<?> updateProduct(@RequestBody Product product) {
-        System.err.println(product.toString());
+        if (product.getAmount() < 0 || product.getVoucher() < 0 || product.getVoucher() > 1 || product.getPrice() < 0) {
+            return ResponseEntity.badRequest().body("Update failed, invalid data!");
+        }
         String result = productServer.updateProduct(product);
-        return result.equals("Update successfully") ? ResponseEntity.ok().body(result)
+        return (result != null && result.equals("Update successfully")) ? ResponseEntity.ok().body(result)
                 : ResponseEntity.badRequest().body(result);
     }
 
     @DeleteMapping("authenticed/api/product/{id}")
     public ResponseEntity<?> deleteProduct(@PathVariable int id) {
         String result = productServer.deleteProduct(id);
-        return result.equals("Delete successfully") ? ResponseEntity.ok().body(result)
+        return (result != null && result.equals("Delete successfully")) ? ResponseEntity.ok().body(result)
                 : ResponseEntity.badRequest().body(result);
     }
 

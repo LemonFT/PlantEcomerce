@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import classNames from "classnames/bind";
 import React, { useContext, useEffect, useState } from "react";
+import { errorAlert } from "../../Components/Alert";
 import Header from "../../Components/Header";
 import Combobox from "../../Components/Selected";
 import SideBar from "../../Components/SideBar";
@@ -12,7 +13,6 @@ import { CiShoppingCart } from "react-icons/ci";
 import { IoIosArrowDropleft, IoIosArrowDropright, IoMdCheckmark } from "react-icons/io";
 
 import { useNavigate } from "react-router-dom";
-import Alert from "../../Components/Alert";
 import Footer from "../../Components/Footer";
 import { addProductToCart, getProducts } from "../../Data/product";
 import img01 from "../../Images/1.png";
@@ -25,8 +25,6 @@ function Shop() {
     const styleIcon = { fontSize: '25px' }
     const navigate = useNavigate()
     const [showAlert, setShowAlert] = useState(false)
-    const [content, setContent] = useState("")
-
     const { user, maxPrice, productCategory} = useContext(DataContext)
     
     const [data, setData] = useState([])
@@ -94,9 +92,7 @@ function Shop() {
         return () => clearTimeout(timeout)
     }, [showAlert])
 
-    const setShowCallBack = () => {
-        setShowAlert(false)
-    }
+
 
     const Product = ({ className, item }) => {
         const [addCart, setAddCart] = useState(false);
@@ -115,10 +111,10 @@ function Shop() {
                 if(result === 1){
                     setAddCart(true)
                 }else if(result === -1){
-                    setContent("The product is currently out of stock.")
+                    errorAlert("The product is currently out of stock.")
                     showErrorAlert()
                 }else{
-                    setContent("Please check your internet again")
+                    errorAlert("Please check your internet again")
                     showErrorAlert()
                 }
             }
@@ -159,7 +155,6 @@ function Shop() {
     }
 
     return (<>
-        {showAlert && <Alert content={content} title={"error"} type={"error"} setShow={setShowCallBack} centerVertical={true} />}
         <Header />
         <SideBar />
         {user && <Message />}

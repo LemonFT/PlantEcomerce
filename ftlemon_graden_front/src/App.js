@@ -9,6 +9,10 @@ import Management from "./Pages/Management"
 import DashBoard from "./Pages/Management/DashBoard"
 import MessAdmin from "./Pages/Management/Message"
 import Product from "./Pages/Management/Product"
+import AddProduct from "./Pages/Management/Product/AddProduct"
+import ExportProduct from "./Pages/Management/Product/ExportProduct"
+import ImportProduct from "./Pages/Management/Product/ImportProduct"
+import UpdateProduct from "./Pages/Management/Product/UpdateProduct"
 import Message from "./Pages/Message"
 import ProductDetails from "./Pages/ProductDetails"
 import Register from "./Pages/Register"
@@ -23,9 +27,12 @@ function App() {
   const authRoutes = () => {
     if ((user?.role)?.toString() === process.env.REACT_APP_ADMIN_ROLE) {
       return [
-        { path: '/admin/chat', element: <Management children={<MessAdmin />} /> },
-        { path: '/admin/product', element: <Management children={<Product />} /> },
-        { path: '/admin', element: <Management children={<DashBoard />} /> },
+        { path: '/admin/chat', element: <Management><MessAdmin /></Management> },
+        { path: '/admin', element: <Management><DashBoard /></Management> },
+        { path: '/admin/product', element: <Management><Product><UpdateProduct /></Product></Management> },
+        { path: '/admin/product-import', element: <Management><Product><ImportProduct /></Product></Management> },
+        { path: '/admin/product-export', element: <Management><Product><ExportProduct /></Product></Management> },
+        { path: '/admin/product-add', element: <Management><Product><AddProduct /></Product></Management> },
         { path: '/', element: <Home /> },
         { path: '/products', element: <Shop /> },
         { path: '/cart', element: <Cart /> },
@@ -58,6 +65,7 @@ function App() {
         { path: '/chat', element: <Message /> },
         { path: '/productdetails', element: <ProductDetails /> },
         { path: "*", element: <Navigate to="/page-not-found" /> },
+        { path: '/abc', element: <ProductDetails /> },
       ]
     }
   }

@@ -50,13 +50,13 @@ public class JwtTokenProvider {
                 .claim("role", role)
                 .setId(UUID.randomUUID().toString())
                 .setIssuedAt(Date.from(Instant.now()))
-                .setExpiration(Date.from(Instant.now().plus(refresh ? 30l : 10l, ChronoUnit.MINUTES)))
+                .setExpiration(Date.from(Instant.now().plus(refresh ? 30L : 10L, ChronoUnit.MINUTES)))
                 .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
         return jwtToken;
     }
 
-    public Claims decodeJWT(String jwt) {
+    public Claims decodeJwt(String jwt) {
 
         Dotenv env = Dotenv.configure().load();
         String keySecret = env.get("REACT_APP_SECRETKEY");

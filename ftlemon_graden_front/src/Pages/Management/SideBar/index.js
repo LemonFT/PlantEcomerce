@@ -1,9 +1,9 @@
 import classNames from "classnames/bind";
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { MdArrowBackIos, MdArrowForwardIos, MdChecklistRtl, MdMessage, MdSupervisedUserCircle } from "react-icons/md";
 import { PiPlantFill } from "react-icons/pi";
 import { RxDashboard } from "react-icons/rx";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { EffectContext } from "../../../Provider/EffectProvider";
 import styles from "./index.module.scss";
 
@@ -11,11 +11,38 @@ function SideBar() {
     const cx = classNames.bind(styles)
     const styleIcon = {fontSize: '25px'}
     const navigate = useNavigate()
-
     const {sidebarAdOpen, updateSideBarAd} = useContext(EffectContext)
     const style = sidebarAdOpen ? {transform: 'translateX(-90%)'} : {transform: 'translateX(0)'};
-
     const {focusLinkAdmin,updateFocusLinkAdmin} = useContext(EffectContext)
+    const location = useLocation();
+    const currentPath = location.pathname;
+
+    useEffect(() => {
+        switch (currentPath) {
+            case "/admin":
+                updateFocusLinkAdmin(1);
+                break;
+            case "/admin/order":
+                updateFocusLinkAdmin(2);
+                break;
+            case "/admin/account":
+                updateFocusLinkAdmin(3);
+                break;
+            case "/admin/chat":
+                updateFocusLinkAdmin(4);
+                break;
+            case "/admin/product":
+            case "/admin/product-add":
+            case "/admin/product-import":
+            case "/admin/product-export":
+                updateFocusLinkAdmin(5);
+                break;
+            default:
+                updateFocusLinkAdmin(1);
+                break;
+        }
+    }, [currentPath, updateFocusLinkAdmin]);
+    
 
     return (<>
         <div className={cx('sidebar')} style={style}>

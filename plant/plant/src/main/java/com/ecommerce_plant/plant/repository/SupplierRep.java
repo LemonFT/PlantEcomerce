@@ -15,7 +15,7 @@ public class SupplierRep {
     private JdbcTemplate jdbcTemplate;
 
     public List<Supplier> findAllSuppliers() {
-        String sql = "SELECT * FROM supplier";
+        String sql = "SELECT * FROM supplier WHERE deleted = false";
         return jdbcTemplate.query(sql, BeanPropertyRowMapper.newInstance(Supplier.class));
     }
 
@@ -32,7 +32,7 @@ public class SupplierRep {
     }
 
     public boolean deleteSupplier(int id) {
-        String sql = "DELETE FROM supplier WHERE id = ?";
+        String sql = "UPDATE supplier SET deleted = true WHERE id = ?";
         return jdbcTemplate.update(sql, id) > 0;
     }
 }

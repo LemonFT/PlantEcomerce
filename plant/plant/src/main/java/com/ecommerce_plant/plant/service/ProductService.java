@@ -32,11 +32,13 @@ public class ProductService {
         Double minDouble, maxDouble;
         try {
             minDouble = Double.parseDouble(min);
+            System.err.println(minDouble);
         } catch (Exception e) {
             minDouble = null;
         }
         try {
             maxDouble = Double.parseDouble(max);
+            System.err.println(maxDouble);
         } catch (Exception e) {
             maxDouble = null;
         }
@@ -45,7 +47,7 @@ public class ProductService {
                 skipProductNum);
     }
 
-    public int getTotalAmountFilter(String search, String min, String max, int[] category_ids) {
+    public int getTotalAmountFilter(String search, String min, String max, int[] categoryIds) {
         Double minDouble, maxDouble;
         try {
             minDouble = Double.parseDouble(min);
@@ -57,7 +59,7 @@ public class ProductService {
         } catch (Exception e) {
             maxDouble = null;
         }
-        return productRep.totalAmountOfFilter(search, minDouble, maxDouble, category_ids);
+        return productRep.totalAmountOfFilter(search, minDouble, maxDouble, categoryIds);
     }
 
     public Double getMaxPrice() {
@@ -70,16 +72,18 @@ public class ProductService {
     }
 
     public String insertProduct(Product product) {
-        product.setDisplay(true);
         product.setDeleted(false);
+        if (product.getAmount() < 0 || product.getVoucher() < 0 || product.getVoucher() > 1 || product.getPrice() < 0) {
+            return "Insert failed";
+        }
         boolean result = productRep.insertProduct(product);
-        return result ? "Insert successfully" : "Insert false";
+        return result ? "Insert successfully" : "Insert failed";
     }
 
     public String updateProduct(Product product) {
         product.setDeleted(false);
         boolean result = productRep.updateProduct(product);
-        return result ? "Update successfully" : "Update fasle";
+        return result ? "Update successfully" : "Update failed, invalid data";
     }
 
     public boolean updateImageProduct(int id, String image) {
@@ -88,9 +92,9 @@ public class ProductService {
 
     public String deleteProduct(int id) {
         try {
-            return productRep.hardDeleteProduct(id) ? "Delete successfully" : "Delete false";
+            return productRep.hardDeleteProduct(id) ? "Delete successfully" : "Delete failed";
         } catch (Exception e) {
-            return productRep.SoftdeleteProduct(id) ? "Delete successfully" : "Delete false";
+            return productRep.SoftdeleteProduct(id) ? "Delete successfully" : "Delete failed";
         }
     }
 }

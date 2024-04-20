@@ -6,7 +6,7 @@ import styles from "./index.module.scss";
 
 import { FiMinus, FiPlus } from "react-icons/fi";
 import { useLocation, useNavigate } from "react-router-dom";
-import Alert from "../../Components/Alert";
+import { successAlert, warningAlert } from "../../Components/Alert";
 import SideBar from "../../Components/SideBar";
 import { addProductToCart, getInfoDetails } from "../../Data/product";
 import { DataContext } from "../../Provider/DataProvider";
@@ -16,7 +16,6 @@ function ProductDetails() {
     const cx = classNames.bind(styles)
     const styleIcon = { fontSize: '25px' }
     const [showAlert, setShowAlert] = useState(false)
-    const [typeAlert, setTypeAlert] = useState('error')
 
     const location = useLocation()
     const navigate = useNavigate()
@@ -32,7 +31,12 @@ function ProductDetails() {
         const fetchData = async () => {
             const dt = await getInfoDetails(params?.get("product-id"))
             if (dt != null) {
+                console.log(dt)
                 const list = dt?.productImages.map(item => item.image);
+                console.log(dt?.product.image)
+
+                list.push(dt?.product.image)
+                console.log(list)
                 setProduct(dt?.product)
                 setImages(list)
             }
@@ -69,20 +73,6 @@ function ProductDetails() {
         }
     }
 
-    const showErrorAlert = () => {
-        setShowAlert(showAlert === false ? true : true)
-    }
-
-    const setShowCallBack = () => {
-        setShowAlert(false)
-    }
-
-    useEffect(() => {
-        const timeout = setTimeout(() => {
-            if (showAlert) setShowAlert(false)
-        }, 2000)
-        return () => clearTimeout(timeout)
-    }, [showAlert])
 
     const handleAddCart = async () => {
         if(!user){
@@ -91,11 +81,11 @@ function ProductDetails() {
         }else{
             const result = await addProductToCart(user.id, product.id, inputNumberProduct.current.value)
             if(result === 1){
-                setTypeAlert('success')
-                showErrorAlert()
+                successAlert("Add to cart successful")
             }else if(result === -1){
-                setTypeAlert('error')
-                showErrorAlert()
+                warningAlert("The product is out of stock")
+            }else{
+                warningAlert("Add to cart failed, check internet and try again!")
             }
         }
     }
@@ -137,7 +127,7 @@ function ProductDetails() {
                     </div>
                 </div>
                 <div className={cx('main_image')}>
-                    <img src={images[images.length - 1]} alt="" />
+                    <img src={images[(images.length - 1)]} alt="" />
                 </div>
                 <div className={cx('sub_images')}>
                     {
@@ -156,14 +146,6 @@ function ProductDetails() {
         <Header />
         {user && <Message />}
         <SideBar />
-        {
-            showAlert && <Alert 
-            content={typeAlert === 'error' ? "Please check your internet again!" : "Add to cart successfully"}
-            type={typeAlert === 'error' ? 'error' : 'success'}
-            title={typeAlert === 'error' ? 'error' : 'success'}
-            setShow={setShowCallBack}
-            centerVertical={true}/>
-        }
         <Container />
     </>);
 }

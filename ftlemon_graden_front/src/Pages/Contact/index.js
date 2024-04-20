@@ -1,11 +1,13 @@
 import classNames from "classnames/bind";
 import Header from "../../Components/Header";
+import SideBar from "../../Components/SideBar";
 import qr from "../../Images/qr.jpg";
 import styles from "./index.module.scss";
 function Contact() {
     const cx = classNames.bind(styles)
     return ( <>
         <Header />
+        <SideBar />
         <div className={cx('contact')}>
             <h1>Liên hệ với chúng tôi</h1>
             <div className={cx('container')}>

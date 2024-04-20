@@ -13,6 +13,8 @@
     }
     .from-price, .to-price{
         width: 20px;
+        transform: translateY(-20px);
+        font-size: 12px;
     }
     .from-price{
         margin-right: 10px;

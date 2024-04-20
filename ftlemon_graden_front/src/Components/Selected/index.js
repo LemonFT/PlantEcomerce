@@ -5,15 +5,16 @@ import makeAnimated from "react-select/animated";
 import styles from "./index.module.scss";
 
 const animatedComponents = makeAnimated();
-function Combobox({options, placeholder, isMulti, closeMenuOnSelect, returnValue, width}) {
+function Combobox({options, placeholder, isMulti, closeMenuOnSelect, returnValue, width, refresh}) {
     const cx = classNames.bind(styles)
-    const [value, setValue] = useState([])
+    const [value, setValue] = useState()
 
     useEffect(() => {
         returnValue(value)
     }, [returnValue, value])
 
-    
+
+
     return ( <>
         <div className={cx('box-select')} style={width ? { width: `${width}px`, height: '38px' } : {width: '300px', height: '38px'}}>
             <Select

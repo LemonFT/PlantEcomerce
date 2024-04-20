@@ -3,12 +3,19 @@ import { Cookies } from "react-cookie";
 
 function formatDate(date) {
     const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // January is 0!
+    const month = String(date.getMonth() + 1).padStart(2, '0'); 
     const year = date.getFullYear();
     const hours = String(date.getHours()).padStart(2, '0');
     const minutes = String(date.getMinutes()).padStart(2, '0');
     const seconds = String(date.getSeconds()).padStart(2, '0');
     return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
+}
+
+function formatDateDMY(date) {
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0'); 
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
 }
 
 function formatDateHHmmSS(date) {
@@ -55,7 +62,7 @@ async function getToken() {
         const timeToken = jwtDecode(tokenObject.token).exp
         const timeTokenRefresh = jwtDecode(tokenObject.refreshToken).exp
 
-        console.log('access expires ' + Number(timeToken*1000 - currentTimePlus) )
+        // console.log('access expires ' + Number(timeToken*1000 - currentTimePlus) )
         if (timeToken*1000 > currentTimePlus) {
             return tokenObject.token
         }
@@ -64,8 +71,11 @@ async function getToken() {
             return tokenObject.refreshToken
         }
         document.cookie = `tokens=; expires=${new Date(0).toUTCString}; path=/`;
+        localStorage.removeItem("user")
     }else{
+        localStorage.removeItem("user")
         window.location.href = '/register'
     }
 }
-export { formatDate, formatDateHHmmSS, getToken };
+export { formatDate, formatDateDMY, formatDateHHmmSS, getToken };
+

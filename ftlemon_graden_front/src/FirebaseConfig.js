@@ -40,7 +40,7 @@ export const signInGG = async () => {
 
 
 // upload image 
-export const handleImageUpload = async (e) => {
+export const handleImageUploadFb = async (e) => {
   const file = e.target.files[0];
   let url = "";
   if (file) {
@@ -56,6 +56,12 @@ export const handleImageUpload = async (e) => {
   return "error"
 }
 // delete image
-export const handleDeleteImage = async (fileName) => {
-  deleteObject(ref(storage, fileName));
-}
+export const handleDeleteImageFb = async (fileName) => {
+  try {
+    await deleteObject(ref(storage, fileName));
+    return true;
+  } catch (error) {
+    console.error("Error deleting image from Firebase Storage:", error);
+    return false;
+  }
+};

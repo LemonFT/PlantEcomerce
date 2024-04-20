@@ -3,9 +3,9 @@ import classNames from "classnames/bind";
 import { useEffect, useRef, useState } from "react";
 import { BsImages } from "react-icons/bs";
 import { IoCloseCircle } from "react-icons/io5";
-import Alert from "../../../Components/Alert";
+import { warningAlert } from "../../../Components/Alert";
 import { deleteImage, getInfoDetails, insertImage, updateImageProduct } from "../../../Data/product";
-import { handleImageUpload } from "../../../FirebaseConfig";
+import { handleDeleteImageFb, handleImageUploadFb } from "../../../FirebaseConfig";
 import styles from "./index.module.scss";
 const BoxImages = ({ id, funcCallBack }) => {
     const cx = classNames.bind(styles)
@@ -15,7 +15,6 @@ const BoxImages = ({ id, funcCallBack }) => {
     const [images, setImages] = useState([])
     const [imageUpload, setImageUpload] = useState()
     const [imageMain, setImageMain] = useState()
-    const [showAlert, setShowAlert] = useState(false)
 
     const fetchData = async () => {
         const dt = await getInfoDetails(id)
@@ -32,7 +31,10 @@ const BoxImages = ({ id, funcCallBack }) => {
 
 
     const upload = async (e) => {
-        const resultUpload = await handleImageUpload(e)
+        if(imageUpload){
+            handleDeleteImageFb(imageUpload)
+        }
+        const resultUpload = await handleImageUploadFb(e)
         if (resultUpload !== 'error') {
             setImageUpload(resultUpload)
         }
@@ -40,43 +42,41 @@ const BoxImages = ({ id, funcCallBack }) => {
 
     const handleDeleteImage = async (product_id, image) => {
         const resultDelete = await deleteImage(product_id, image)
-        if (resultDelete) {
+        const deleteImageSto = await handleDeleteImageFb(image);
+        if (resultDelete && deleteImageSto) {
+            console.log("delete success")
             fetchData()
         }
     }
 
     const handleInsertImage = async (product_id, image) => {
         if (!imageUpload) {
-            setShowAlert(true)
-            setTimeout(() => {
-                setShowAlert(false)
-            }, 1500)
+            warningAlert("Check image upload!")
             return;
         }
-        const resultInert = await insertImage(product_id, image)
-        if (resultInert) {
+        const resultInsert = await insertImage(product_id, image)
+        if (resultInsert) {
             fetchData()
+            setImageUpload()
         }
     }
     const handleUpdateImage = async (product_id, image) => {
+        if(imageMain){
+            handleDeleteImageFb(imageMain)
+        }
         if (!imageUpload) {
-            setShowAlert(true)
-            setTimeout(() => {
-                setShowAlert(false)
-            }, 1500)
+            warningAlert("Check image upload!")
             return
         }
         const resultUpdate = await updateImageProduct(product_id, image)
         if (resultUpdate) {
             fetchData()
+            setImageUpload()
         }
     }
 
 
     return <>
-        {
-            showAlert && <Alert content={"Please, upload image!"} setShow={() => { setShowAlert(false) }} type={"warning"} title={"warning"} centerVertical={true} />
-        }
         <div className={cx('parent-scroll')}>
             <div className={cx('upload-form')}>
                 <div className={cx('close')}>
@@ -109,11 +109,11 @@ const BoxImages = ({ id, funcCallBack }) => {
                 </div>
                 <div className={cx('group-btn')}>
                     <button onClick={() => {
-                        handleInsertImage(id, imageUpload)
-                    }}>Add sub image</button>
-                    <button onClick={() => {
                         handleUpdateImage(id, imageUpload)
                     }}>Update main image</button>
+                    <button onClick={() => {
+                        handleInsertImage(id, imageUpload)
+                    }}>Add sub image</button>
                 </div>
                 <div className={cx('line')}>
                     <span></span>
@@ -124,7 +124,7 @@ const BoxImages = ({ id, funcCallBack }) => {
                         <div className={cx('note')}>
                             <h4>Main photo</h4>
                         </div>
-                        <img src={imageMain || images[0] || ""} alt="" />
+                        <img src={imageMain || ""} alt="" />
                     </div>
                     <div className={cx('sub-images')}>
                         <div className={cx('note')}>

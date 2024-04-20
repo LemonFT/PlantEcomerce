@@ -2,10 +2,11 @@ import { createContext, useEffect, useState } from "react";
 import { Cookies, useCookies } from "react-cookie";
 import { getMaxPriceProduct, getProductCategory } from "../Data/product";
 import { getInfoUser } from "../Data/user";
+
 const DataContext = createContext()
 function DataProvider({ children }) {
     const [cookie, setCookie] = useCookies([])
-    const [user, setUser] = useState()
+    const [user, setUser] = useState(localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : null)
     const [cookieChange, setCookieChange] = useState(false)
     const [maxPrice, setMaxPrice] = useState(1000000)
     const [productCategory, setProductCategory] = useState([])
@@ -51,10 +52,14 @@ function DataProvider({ children }) {
         updateUserInfo()
     }, [cookieChange])
 
+    useEffect(() => {
+        localStorage.setItem("user", JSON.stringify(user));
+    }, [user])
 
     const removeUser = () => {
         updateCookie({key: 'tokens', value: null, expires: new Date()})
         setUser(null)
+        localStorage.removeItem("user")
     }
 
     const updateUrlHistory = (url) => {

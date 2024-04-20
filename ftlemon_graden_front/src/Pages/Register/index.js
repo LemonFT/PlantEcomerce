@@ -6,7 +6,7 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import { FcGoogle } from "react-icons/fc";
 import { useNavigate } from 'react-router-dom';
 import validator from 'validator';
-import Alert from '../../Components/Alert';
+import { errorAlert, successAlert, warningAlert } from '../../Components/Alert';
 import Loading from '../../Components/Loading';
 import { register, signIn } from '../../Data/user';
 import { DataContext } from '../../Provider/DataProvider';
@@ -21,8 +21,6 @@ function Register() {
     const usernameRef = useRef(null)
     const pwdRef = useRef(null)
     const pwdRefCf = useRef(null)
-    const [show, setShow] = useState(false)
-    const [alert, setAlert] = useState({})
     const [style, setStyle] = useState({})
     const navigate = useNavigate();
     const {user, updateCookie, urlHistory, updateUrlHistory} = useContext(DataContext)
@@ -73,32 +71,6 @@ function Register() {
         const rs = (e.target.value).length >= 8 && pwdRef.current.value === pwdRefCf.current.value
         setStyleByKey('pwdCf', rs)
     }
-    const showErrorAlert = (content) => {
-        setAlert({
-            title: "error",
-            type: 'error',
-            content: content
-        })
-        setShow(show === false ? true : true)
-    }
-    const showSuccessAlert = (content) => {
-        setAlert({
-            title: "success",
-            type: 'success',
-            content: content
-        })
-        setShow(show === false ? true : true)
-    }
-    useEffect(() => {
-        const timeout = setTimeout(() => {
-            if (show) setShow(false)
-        }, 2000)
-        return () => clearTimeout(timeout)
-    }, [show])
-
-    const setShowCallBack = () => {
-        setShow(false)
-    }
 
     useEffect(() => {
         if (emailRef.current) {
@@ -115,27 +87,27 @@ function Register() {
     const submitRegister = async () => {
         if (emailRef.current.value === '' || usernameRef.current.value === ''
             || pwdRef.current.value === '' || pwdRefCf.current.value === '') {
-            showErrorAlert("Please, check information!")
+            warningAlert("Please, check information!")
             return;
         }
         if (!validator.isEmail(emailRef.current.value)) {
-            showErrorAlert("Email invalid!")
+            warningAlert("Email invalid!")
             return;
         }
         if ((usernameRef.current.value).length < 6) {
-            showErrorAlert("Username invalid (>=6)!")
+            warningAlert("Username invalid (>=6)!")
             return;
         }
         if ((pwdRef.current.value).length < 8) {
-            showErrorAlert("Password invalid (>=8)!")
+            warningAlert("Password invalid (>=8)!")
             return;
         }
         if ((pwdRefCf.current.value).length < 8) {
-            showErrorAlert("Password confirm invalid (>=8)!")
+            warningAlert("Password confirm invalid (>=8)!")
             return;
         }
         if (pwdRef.current.value !== pwdRefCf.current.value) {
-            showErrorAlert("Password confirm incorrect!")
+            warningAlert("Password confirm incorrect!")
             return;
         }
         const resultInsert = await register({
@@ -144,23 +116,24 @@ function Register() {
             pwd: pwdRef.current.value
         })
         if (resultInsert === "Insert successfully") {
-            showSuccessAlert("Register successfully")
+            successAlert("Register successfully")
+            setFormRegister(false)
         } else {
-            showErrorAlert(resultInsert + "!")
+            errorAlert(resultInsert + "!")
         }
     }
 
     const submitSignIn = async () => {
         if (usernameRef.current.value === '' || pwdRef.current.value === '') {
-            showErrorAlert("Please, check information!")
+            warningAlert("Please, check information!")
             return;
         }
         if ((usernameRef.current.value).length < 6) {
-            showErrorAlert("Username invalid (>=6)!")
+            warningAlert("Username invalid (>=6)!")
             return;
         }
         if ((pwdRef.current.value).length < 8) {
-            showErrorAlert("Password invalid (>=8)!")
+            warningAlert("Password invalid (>=8)!")
             return;
         }
         const resultSignIn = await signIn({
@@ -168,7 +141,7 @@ function Register() {
             pwd: pwdRef.current.value
         })
         if (resultSignIn === null) {
-            showErrorAlert('Please check username or password again!')
+            errorAlert('Please check username or password again!')
         } else {
             const expirationDate = new Date();
             const newExpirationDate = new Date(expirationDate.getTime());
@@ -185,9 +158,7 @@ function Register() {
         {
             showLoading && <Loading />
         }
-        {
-            show && <Alert content={alert.content} title={alert.title} type={alert.type} setShow={setShowCallBack} />
-        }
+
         <div className={cx("register_signin")}>
             <div className={cx("register_form")}>
                 <div className={cx('form')}>

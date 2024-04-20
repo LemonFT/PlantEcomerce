@@ -15,4 +15,5 @@ public class Supplier {
     private String gmail;
     private String phone_number;
     private String address;
+    private boolean deleted;
 }

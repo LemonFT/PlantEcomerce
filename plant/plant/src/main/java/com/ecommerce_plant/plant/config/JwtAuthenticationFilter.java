@@ -30,7 +30,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
     PermissionService permissionService;
 
-    @SuppressWarnings("null")
     @Override
     protected void doFilterInternal(HttpServletRequest request,
             HttpServletResponse response, FilterChain filterChain)
@@ -38,8 +37,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String token = extractTokenFromRequest(request);
         if (token != null && jwtTokenProvider.isTokenValid(token)) {
             String username = jwtTokenProvider.getUsernameFromToken(token);
-            int user_id = jwtTokenProvider.getUserIDFromToken(token);
-            List<Permission> permissions = permissionService.findPermissionByUserID(user_id);
+            int userId = jwtTokenProvider.getUserIDFromToken(token);
+            List<Permission> permissions = permissionService.findPermissionByUserID(userId);
             List<GrantedAuthority> authorities = new ArrayList<>();
             for (Permission permission : permissions) {
                 authorities.add(new SimpleGrantedAuthority(permission.getName()));

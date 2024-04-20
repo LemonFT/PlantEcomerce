@@ -177,7 +177,7 @@ function Cart() {
                         <FiMinus style={styleIcon} />
                     </span>
                     <span className={cx('number')}>
-                        <input ref={inputNumberProduct} defaultValue={number} onChange={(event) => handleNumberProduct(event)} />
+                        <input ref={inputNumberProduct} id="number" defaultValue={number} onBlur={() => handleNumberProduct()} />
                     </span>
                     <span className={cx('plus')}>
                         <FiPlus style={styleIcon} onClick={() => handleChangeAmount(true)} />

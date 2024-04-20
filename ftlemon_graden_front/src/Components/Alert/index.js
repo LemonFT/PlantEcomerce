@@ -1,31 +1,58 @@
-import classNames from "classnames/bind";
-import { GiCheckMark } from "react-icons/gi";
-import { MdCloseFullscreen } from "react-icons/md";
-import styles from "./index.module.scss";
+import Swal from "sweetalert2";
 
-function Alert({setShow, type, title, content, centerVertical}) {
-    const cx = classNames.bind(styles)
-    const styleIcon = {fontSize: '25px'}
-    return (<>
-        <div className={cx('box_alert', type)} style={centerVertical ? {top: '50%'}: {}}>
-            <div className={cx('icon')}>
-                <span>
-                    <GiCheckMark style={styleIcon}  />
-                </span>
-            </div>
-            <div className={cx('text')}>
-                <div className={cx('header')}>
-                    <h3>{title}</h3>
-                </div>
-                <div className={cx('content')}>
-                    <p>{content}</p>
-                </div>
-            </div>
-            <span className={cx('close')} onClick={() => setShow()}>
-                <MdCloseFullscreen  style={styleIcon}/>
-            </span>
-        </div>
-    </>);
+const successAlert = (content) => {
+    Swal.fire({
+        position: "center-center",
+        icon: "success",
+        title: content,
+        showConfirmButton: false,
+        timer: 1500
+      });
 }
 
-export default Alert;
+const errorAlert = (content) => {
+    Swal.fire({
+        position: "center-center",
+        icon: "error",
+        title: content,
+        showConfirmButton: false,
+        timer: 1500
+      });
+}
+
+const warningAlert = (content) => {
+    Swal.fire({
+        position: "center-center",
+        icon: "warning",
+        title: content,
+        showConfirmButton: false,
+        timer: 1500
+      });
+}
+
+const processAlert = (title, content) => {
+    let timerInterval;
+    Swal.fire({
+        title: title,
+        html: content + " <b></b> milliseconds.",
+        timer: 1000,
+        timerProgressBar: true,
+        didOpen: () => {
+            Swal.showLoading();
+          const timer = Swal.getPopup().querySelector("b");
+          timerInterval = setInterval(() => {
+            timer.textContent = `${Swal.getTimerLeft()}`;
+          }, 100);
+        },
+        willClose: () => {
+          clearInterval(timerInterval);
+        }
+      }).then((result) => {
+        if (result.dismiss === Swal.DismissReason.timer) {
+          console.log("I was closed by the timer");
+        }
+      });
+}
+
+export { errorAlert, processAlert, successAlert, warningAlert };
+

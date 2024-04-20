@@ -190,9 +190,20 @@
 @media only screen and (max-width: 800px) {
     .container{
         .info{
+            width: 100vw;
             position: relative;
             transform: translateY(0px);
             margin-bottom: 5px;
+            .desc{
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                width: 100%;
+                p{
+                    width: 80%;
+                    font-size: 13px;
+                }
+            }
             .add_to_cart{
                 margin-top: 10px !important;
             }
@@ -202,7 +213,7 @@
         position: relative !important;
         transform: translate(-100px, -60px);
         img{
-            height: 40vh !important;
+            height: 35vh !important;
         }
     }
     .sub_images{
