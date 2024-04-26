@@ -78,7 +78,6 @@ function Cart() {
                 const dt = await getCart(user?.id)
                 if (dt != null) {
                     setProduct(dt)
-                    console.log(dt)
                 }
             } catch (error) { }
         }

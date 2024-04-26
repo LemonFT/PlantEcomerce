@@ -8,6 +8,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+/**
+ * @author lemonftdev
+ */
 @Getter
 @Setter
 @AllArgsConstructor
@@ -20,8 +23,8 @@ public class User {
     private String email;
     private String avatar;
     private boolean gender;
-    private Date join_date;
-    private int role_id;
+    private Date joinDate;
+    private int roleId;
     private boolean block;
     private boolean deleted;
 }

@@ -38,8 +38,8 @@ public class MessageRep {
                 message.getTime(), message.getId()) > 0;
     }
 
-    public boolean deleteMessage(int id) {
-        String sql = "DELETE FROM message WHERE id = ?";
-        return jdbcTemplate.update(sql, id) > 0;
+    public boolean deleteMessage(int userId) {
+        String sql = "DELETE FROM message WHERE user_send_id = ? OR user_receive_id = ?";
+        return jdbcTemplate.update(sql, userId, userId) > 0;
     }
 }

@@ -30,15 +30,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
     PermissionService permissionService;
 
+    private static final String BEARER_PREFIX = "Bearer ";
+
     @Override
     protected void doFilterInternal(HttpServletRequest request,
             HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         String token = extractTokenFromRequest(request);
+        System.err.println(jwtTokenProvider.isTokenValid(token) + "");
+        System.err.println(token);
         if (token != null && jwtTokenProvider.isTokenValid(token)) {
             String username = jwtTokenProvider.getUsernameFromToken(token);
-            int userId = jwtTokenProvider.getUserIDFromToken(token);
-            List<Permission> permissions = permissionService.findPermissionByUserID(userId);
+            int userId = jwtTokenProvider.getUserIdFromToken(token);
+            List<Permission> permissions = permissionService.findPermissionByUserId(userId);
             List<GrantedAuthority> authorities = new ArrayList<>();
             for (Permission permission : permissions) {
                 authorities.add(new SimpleGrantedAuthority(permission.getName()));
@@ -53,7 +57,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private String extractTokenFromRequest(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
-        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+        if (bearerToken != null && bearerToken.startsWith(BEARER_PREFIX)) {
             return bearerToken.substring(7);
         }
         return null;

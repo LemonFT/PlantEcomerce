@@ -97,7 +97,7 @@ public class JwtTokenProvider {
         return claimsJws.getBody().get("uname", String.class);
     }
 
-    public int getUserIDFromToken(String jwt) {
+    public int getUserIdFromToken(String jwt) {
         Dotenv env = Dotenv.configure().load();
         String keySecret = env.get("REACT_APP_SECRETKEY");
         Key secretKey = Keys.hmacShaKeyFor(keySecret.getBytes());

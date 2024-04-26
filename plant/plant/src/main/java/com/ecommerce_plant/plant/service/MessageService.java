@@ -12,6 +12,9 @@ import com.ecommerce_plant.plant.repository.MessageRep;
 
 import io.github.cdimascio.dotenv.Dotenv;
 
+/**
+ * @author lemonftdev
+ */
 @Service
 public class MessageService {
     @Autowired
@@ -20,17 +23,17 @@ public class MessageService {
     @Autowired
     UserService userService;
 
-    public List<Message> getAllMessage(int user_id) {
+    public List<Message> getAllMessage(int userId) {
         Dotenv dotenv = Dotenv.load();
-        int admin_role = Integer.parseInt(dotenv.get("REACT_APP_ADMIN_ROLE"));
-        User user = userService.getUser(user_id);
+        int customer = Integer.parseInt(dotenv.get("REACT_APP_CUSTOMER_ROLE"));
+        User user = userService.getUser(userId);
         if (user == null) {
             return null;
         }
-        if (user.getRole_id() == admin_role) {
+        if (user.getRoleId() != customer) {
             return messageRep.findAllMessagesWithCustomers();
         }
-        return messageRep.findAllMessagesWithAdmin(user_id);
+        return messageRep.findAllMessagesWithAdmin(userId);
     }
 
     public String insertMessage(Message message) {
@@ -47,5 +50,9 @@ public class MessageService {
         }
         boolean result = messageRep.insertMessage(message);
         return result ? "Insert successfully" : "Insert false";
+    }
+
+    public boolean deleteMessage(int userId) {
+        return messageRep.deleteMessage(userId);
     }
 }

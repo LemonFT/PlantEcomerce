@@ -3,10 +3,12 @@ import Tippy from "@tippyjs/react";
 import classNames from "classnames/bind";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { CiTrash } from "react-icons/ci";
-import { processAlert } from "../../../../Components/Alert";
+import validator from "validator";
+import { errorAlert, processAlert, successAlert } from "../../../../Components/Alert";
 import Combobox from "../../../../Components/Selected";
+import { saveImport } from "../../../../Data/import";
 import { getAllProduct } from "../../../../Data/product";
-import { deleteSupplierById, getAllSupplier } from "../../../../Data/supplier";
+import { deleteSupplierById, getAllSupplier, saveSupplier } from "../../../../Data/supplier";
 import { formatDateDMY } from "../../../../Global";
 import { DataContext } from "../../../../Provider/DataProvider";
 import HeaderProduct from "../HeaderProduct";
@@ -33,6 +35,7 @@ function ImportProduct() {
     const [supplierSelectedId, setSupplierSelectedId] = useState(null)
     const [styleBtnSupplier, setStyleBtnSupplier] = useState(false)
     const [convertOptionSupplier, setConvertOptionSupplier] = useState()
+    const [placeHolder, setPlaceHoder] = useState("Select supplier already exist")
 
     const fetchData = async (fetchFunction, setDataFunction) => {
         const data = await fetchFunction();
@@ -63,10 +66,11 @@ function ImportProduct() {
     }, [supplierSelectedId])
 
     const updateTotalPay = () => {
+        console.log(productsImport)
         const totalPay = productsImport?.reduce((accumulator, item) => {
-            return accumulator + (item?.product.price * item?.amount);
+            return accumulator + (item?.product?.price * item?.amount);
         }, 0) || 0;
-        refTotalPay.current.value = totalPay
+        refTotalPay.current.value = totalPay +" VND"
     }
 
     useEffect(() => {
@@ -74,7 +78,7 @@ function ImportProduct() {
             setProductsImport((prev) => {
                 const productExist = prev.find((item) => Number(item.product.id) === Number(productSelectedId))
                 return productExist ?
-                    prev.map(item => Number(item.product.id) === Number(productSelectedId) ? { product: item.product, amount: item.amount + 1 } : item)
+                    prev.map(item => Number(item.product?.id) === Number(productSelectedId) ? { product: item.product, amount: item.amount + 1 } : item)
                     : [...prev, { product: getProductById(productSelectedId), amount: 1 }]
             })
         }
@@ -86,7 +90,6 @@ function ImportProduct() {
 
     useEffect(() => {
         if (supplierSelectedId && Number.isInteger(Number(supplierSelectedId))) {
-            console.log(supplierSelectedId)
             const supplierSimilar = supplier.find(item => item.id === supplierSelectedId)
             if (supplierSimilar) {
                 refName.current.value = supplierSimilar.name
@@ -94,13 +97,8 @@ function ImportProduct() {
                 refPhone.current.value = supplierSimilar.phone_number
                 refAddress.current.value = supplierSimilar.address
             }
-        } else {
-            refName.current.value = ""
-            refEmail.current.value = ""
-            refPhone.current.value = ""
-            refAddress.current.value = ""
         }
-    }, [supplierSelectedId, supplier])
+    }, [supplierSelectedId])
 
     const returnValueSelectedSupplier = (supplier) => {
         setSupplierSelectedId(supplier)
@@ -113,6 +111,10 @@ function ImportProduct() {
                 label: s.name
             }))
         )
+        refName.current.value = ""
+        refEmail.current.value = ""
+        refPhone.current.value = ""
+        refAddress.current.value = ""
     }, [supplier])
 
     const convertOptionProduct = () => {
@@ -137,25 +139,96 @@ function ImportProduct() {
         processAlert("The save is in progress", "Completed in")
     }
 
-    const saveImportInvoice = () => {
-
-    }
-
     const deleteProduct = (id) => {
         setProductsImport((prev) => {
             return prev?.filter((item) => item.product.id !== id);
         });
     };
 
+
+    const saveImportInvoice = async () => {
+        if(productsImport.length === 0){
+            errorAlert("No data import, choose product and try again!")
+            return;
+        }
+        if(isNaN(Number(supplierSelectedId)) || Number(supplierSelectedId) < 1){
+            errorAlert("Supplier not selected!")
+            return;
+        }
+        processAlert("The save is in progress", "Completed in")
+        setTimeout(async () => {
+            const details = productsImport.map((item) => {
+                return {
+                    import_invoice_id: 0,
+                    product_id: item.product.id,
+                    number: item.amount,
+                    price: item.product.price
+                }
+            })
+            const data = {
+                id: 0,
+                supplier_id: supplierSelectedId,
+                init_time: "",
+                user_id: user?.id,
+                total_pay: (refTotalPay.current.value).replace(" VND", ""),
+                details: details
+            }
+            const result = await saveImport(data)
+            console.log("result: "+result)
+            if(result){
+                successAlert("Insert import invoice successful")
+            }else{
+                errorAlert("Insert import invoice false, reload page and try again")
+            }
+        }, 1200)
+    }
+
+
     const deleteSupplier = async () => {
         const result = await deleteSupplierById(supplierSelectedId)
         if (result) {
-            setSupplierSelectedId()
+            setSupplierSelectedId(null)
             fetchSupplierData()
-            console.log('deleted')
-            document.getElementById("email").innerText = ""
-            document.getElementById("name").innerText = ""
-            document.getElementById("phone").innerText = ""
+            refName.current.value = ""
+            refEmail.current.value = ""
+            refPhone.current.value = ""
+            refAddress.current.value = ""
+        }
+    }
+
+    const saveSupp = async () => {
+        const name = refName.current.value
+        const email = refEmail.current.value
+        const phone = refPhone.current.value
+        const address = refAddress.current.value
+        if (name === "" || email === "" || phone === "" || address === "") {
+            errorAlert("Check information and try again!")
+            return;
+        }
+        if (!validator.isEmail(email)) {
+            errorAlert("Email invalid, update and try again!")
+            return;
+        }
+        if (!validator.isMobilePhone) {
+            errorAlert("Phone number invalid, update and try again!")
+            return;
+        }
+        const supplier = {
+            id: 0,
+            name: name,
+            gmail: email,
+            phone_number: phone,
+            address: address,
+            deleted: false,
+        }
+        const resultSave = await saveSupplier(supplier)
+        if(Number(resultSave) > 0){
+            fetchSupplierData()
+            setPlaceHoder("Select supplier already exist")
+            setSupplierSelectedId(resultSave)
+            successAlert("Save supplier")
+        }else{
+            errorAlert("Supplier information already exist!")
         }
     }
 
@@ -239,9 +312,10 @@ function ImportProduct() {
                                 <label htmlFor="address">Address</label>
                             </div>
                             <div className={cx('edt')}>
-                                <Combobox placeholder={"Select supplier already exist"} options={convertOptionSupplier} returnValue={returnValueSelectedSupplier} />
+                                <Combobox placeholder={placeHolder} options={convertOptionSupplier} returnValue={returnValueSelectedSupplier} />
                             </div>
                             <div className={cx('btns')}>
+                                <button className={cx('btnDeleteSpl_on')} onClick={() => saveSupp()}>Save</button>
                                 <Tippy content="Selected supplier then you can delete">
                                     <button onClick={() => {
                                         deleteSupplier()

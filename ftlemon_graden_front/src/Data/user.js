@@ -43,7 +43,6 @@ const signIn = async (user) => {
         console.error('Error fetching data:', error);
     }
 }
-
 const getInfoUser = async () => {
     const token = await getToken()
     try {
@@ -68,7 +67,6 @@ const getInfoUser = async () => {
         return null
     }
 }
-
 const getContact = async (user_id) => {
     const token = await getToken()
     try {
@@ -89,7 +87,6 @@ const getContact = async (user_id) => {
         return null
     }
 }
-
 const saveContact = async (user_id, address_category, address, phone_number) => {
     const token = await getToken()
     try {
@@ -97,6 +94,7 @@ const saveContact = async (user_id, address_category, address, phone_number) => 
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
+                "Authorization": "Bearer "+token
             },
             body: JSON.stringify({
                 user_id: user_id,
@@ -115,7 +113,6 @@ const saveContact = async (user_id, address_category, address, phone_number) => 
         return false
     }
 }
-
 const updateContact = async (user_id, address_category, address, phone_number) => {
     const token = await getToken()
     try {
@@ -123,6 +120,7 @@ const updateContact = async (user_id, address_category, address, phone_number) =
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
+                "Authorization": "Bearer "+token
             },
             body: JSON.stringify({
                 user_id: user_id,
@@ -141,5 +139,75 @@ const updateContact = async (user_id, address_category, address, phone_number) =
         return false
     }
 }
-export { getContact, getInfoUser, register, saveContact, signIn, updateContact };
+const getAllAccounts = async () => {
+    const token = await getToken()
+    try {
+        const response = await fetch(process.env.REACT_APP_BASEURL + `authenticed/api/users`, {
+            method: 'GET', 
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer '+token
+            }
+        })
+        const status = (await response).status
+        return status === 200 ? response.json() : null
+    } catch (error) {
+        console.error(error)
+    }
+    return null
+}
+const updateAccount = async (data) => {
+    const token = await getToken()
+    try {
+        const response = await fetch(process.env.REACT_APP_BASEURL + `authenticed/api/user`, {
+            method: 'PUT', 
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer '+token
+            },
+            body: JSON.stringify(data)
+        })
+        return (await response).text()
+    } catch (error) {
+        console.error(error)
+    }
+    return "Check internet and try again!"
+}
+const deleteAccount = async (accountId) => {
+    const token = await getToken()
+    try {
+        const response = await fetch(process.env.REACT_APP_BASEURL + `authenticed/api/user/${accountId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer '+token
+            }
+        })
+        return (await response).text()
+    } catch (error) {
+        console.error(error)
+    }
+    return "Check internet and try again!"
+}
+const createAccount = async (data) => {
+    const token = await getToken()
+    try {
+        const response = await fetch(process.env.REACT_APP_BASEURL + `authenticed/api/user/register`, {
+            method: 'POST', 
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer '+token
+            },
+            body: JSON.stringify(data)
+        })
+        return (await response).text()
+    } catch (error) {
+        console.error(error)
+    }
+    return "Check internet and try again!"
+}
+export {
+    createAccount, deleteAccount, getAllAccounts, getContact, getInfoUser, register,
+    saveContact, signIn, updateAccount, updateContact
+};
 

@@ -14,6 +14,9 @@ import com.ecommerce_plant.plant.service.UserService;
 
 import io.github.cdimascio.dotenv.Dotenv;
 
+/**
+ * @author lemonftdev
+ */
 @Controller
 @CrossOrigin(origins = "*")
 public class SocketController {
@@ -35,11 +38,11 @@ public class SocketController {
     @SendTo("/topic/room_private_chat")
     public void chat(Message message) {
         Dotenv dotenv = Dotenv.load();
-        int admin_role = Integer.parseInt(dotenv.get("REACT_APP_ADMIN_ROLE"));
+        int adminRole = Integer.parseInt(dotenv.get("REACT_APP_ADMIN_ROLE"));
         User user = userService.getUser(message.getUser_send_id());
         System.err.println(message.toString());
-        if (user.getRole_id() == admin_role) {
-            messagingTemplate.convertAndSendToUser(String.valueOf(admin_role), "/queue/reply",
+        if (user.getRoleId() == adminRole) {
+            messagingTemplate.convertAndSendToUser(String.valueOf(adminRole), "/queue/reply",
                     "Message admin reply");
         } else {
             System.err.println("customer");

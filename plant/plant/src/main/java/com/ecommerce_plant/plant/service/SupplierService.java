@@ -25,4 +25,8 @@ public class SupplierService {
             return false;
         }
     }
+
+    public int insertSupplier(Supplier supplier) {
+        return supplierRep.insertSupplier(supplier);
+    }
 }

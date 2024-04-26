@@ -2,6 +2,9 @@ import { jwtDecode } from "jwt-decode";
 import { Cookies } from "react-cookie";
 
 function formatDate(date) {
+    if (!date) {
+        return 'N/A'; 
+    }
     const day = String(date.getDate()).padStart(2, '0');
     const month = String(date.getMonth() + 1).padStart(2, '0'); 
     const year = date.getFullYear();
@@ -12,6 +15,9 @@ function formatDate(date) {
 }
 
 function formatDateDMY(date) {
+    if (!date) {
+        return 'N/A'; 
+    }
     const day = String(date.getDate()).padStart(2, '0');
     const month = String(date.getMonth() + 1).padStart(2, '0'); 
     const year = date.getFullYear();
@@ -19,10 +25,23 @@ function formatDateDMY(date) {
 }
 
 function formatDateHHmmSS(date) {
+    if (!date) {
+        return 'N/A'; 
+    }
     const hours = String(date.getHours()).padStart(2, '0');
     const minutes = String(date.getMinutes()).padStart(2, '0');
     const seconds = String(date.getSeconds()).padStart(2, '0');
     return `${hours}:${minutes}:${seconds}`;
+}
+
+const useDebounce = (callback, delay) => {
+    let debounce
+    return (searchValue) => {
+        clearTimeout(debounce)
+        debounce = setTimeout(() => {
+            callback(searchValue)
+        }, delay);
+    }
 }
 
 async function RefreshToken(refreshToken) {
@@ -62,7 +81,6 @@ async function getToken() {
         const timeToken = jwtDecode(tokenObject.token).exp
         const timeTokenRefresh = jwtDecode(tokenObject.refreshToken).exp
 
-        // console.log('access expires ' + Number(timeToken*1000 - currentTimePlus) )
         if (timeToken*1000 > currentTimePlus) {
             return tokenObject.token
         }
@@ -77,5 +95,5 @@ async function getToken() {
         window.location.href = '/register'
     }
 }
-export { formatDate, formatDateDMY, formatDateHHmmSS, getToken };
+export { formatDate, formatDateDMY, formatDateHHmmSS, getToken, useDebounce };
 

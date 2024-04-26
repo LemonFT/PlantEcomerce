@@ -23,8 +23,7 @@ const PriceFilter = ({ min, max, funcGetRange }) => {
     return (
         <>
             <div className={cx('box-slider')}>
-                <span className={cx('title')}>Price: </span>
-                <div className={cx('from-price')}>{range[0]}</div>
+                <div className={cx('from-price')}>{range[0]} VND</div>
                 <Slider
                     range={true}
                     className={cx('slider')}
@@ -33,7 +32,7 @@ const PriceFilter = ({ min, max, funcGetRange }) => {
                     min={min}
                     max={max}
                 />
-                <div className={cx('to-price')}>{range[1]}</div>
+                <div className={cx('to-price')}>{range[1]} VND</div>
             </div>
         </>
     );

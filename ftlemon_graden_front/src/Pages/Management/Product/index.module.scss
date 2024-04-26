@@ -59,27 +59,14 @@
                 border: none;
             }
         }
-        .button:nth-child(4) {
+        .button {
             background-color: white;
             border: 0.3px solid gray;
             &:hover {
                 background-color: rgb(76, 120, 222);
             }
         }
-        .button:nth-child(2) {
-            background-color: white;
-            border: 0.3px solid gray;
-            &:hover {
-                background-color: rgb(76, 120, 222);
-            }
-        }
-        .button:nth-child(3) {
-            background-color: white;
-            border: 0.3px solid gray;
-            &:hover {
-                background-color: rgb(76, 120, 222);
-            }
-        }
+        
     }
 }
 //update
@@ -454,7 +441,7 @@
         .row_2 {
             display: flex;
             justify-content: center;
-            align-items: start;
+            align-items: flex-start;
             gap: 100px;
             width: 93%;
             .img {
@@ -474,7 +461,7 @@
             .edits {
                 display: flex;
                 justify-content: center;
-                align-items: start;
+                align-items: flex-start;
                 flex-direction: column;
                 gap: 20px;
                 .edt_add_check {
@@ -923,7 +910,263 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-top: 30px;
+            margin-top: 15px;
+            transform: translateX(20%);
+            button {
+                margin-right: 40px;
+                width: 300px;
+                height: 38px;
+                border: 1px solid rgb(76, 120, 222);
+                border-radius: 5px;
+                background-color: white;
+                color: rgb(76, 120, 222);
+                font-size: 13px;
+                font-weight: bold;
+                text-transform: uppercase;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                &:hover {
+                    background-color: rgb(76, 120, 222);
+                    color: white;
+                    border-color: rgb(76, 120, 222);
+                }
+                &:active {
+                    transform: translateY(2px);
+                    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+                }
+            }
+        }
+    }
+}
+
+//export
+.product {
+    width: 100%;
+    .export_product {
+        position: relative;
+        padding: 10px;
+        .row_1 {
+            width: 100%;
+            margin-bottom: 30px;
+            .info_import_invoice {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 20px;
+                .edt {
+                    position: relative;
+                    width: 300px;
+                    height: 40px;
+                    label {
+                        position: absolute;
+                        top: 50%;
+                        left: 10px;
+                        transform: translateY(-50%);
+                        cursor: text;
+                        background-color: white;
+                        font-family: serif;
+                        transition: all 0.2s;
+                        user-select: none;
+                    }
+                    input::placeholder {
+                        color: gray;
+                    }
+                    input:placeholder-shown + label {
+                        top: 50%;
+                        transform: translateY(-50%);
+                        font-size: 14px;
+                        padding: 0px;
+                        border-radius: 5px;
+                        color: gray;
+                    }
+                    input:not(:placeholder-shown) + label {
+                        top: 0%;
+                        transform: translateY(-50%);
+                        font-size: 14px;
+                        padding: 0px 10px;
+                        color: rgb(76, 120, 222);
+                    }
+                    input:focus + label {
+                        top: 0%;
+                        transform: translateY(-50%);
+                        font-size: 14px;
+                        padding: 0px 10px;
+                        color: rgb(76, 120, 222);
+                    }
+                    input {
+                        width: 100%;
+                        height: 100%;
+                        border-radius: 5px;
+                        border: 0.8px solid rgb(204 204 204);
+                        outline: none;
+                        padding: 5px;
+                        user-select: none;
+                        font-size: 15px;
+                        font-family: 'Courier New', Courier, monospace;
+                        font-weight: bold;
+                        text-transform: uppercase;
+                        text-align: center;
+                        cursor: no-drop;
+                        &:focus {
+                            border: 2px solid rgb(76, 120, 222);
+                        }
+                    }
+                }
+            }
+        }
+        .row_2 {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 40px;
+            .table_import_product::-webkit-scrollbar {
+                opacity: 0;
+                width: 0px;
+            }
+            .table_import_product {
+                width: 90%;
+                display: flex;
+                justify-content: flex-start;
+                align-items: center;
+                flex-direction: column;
+                gap: 20px;
+                border-radius: 4px;
+                .sl_product{
+                    width: 80%;
+                    display: flex;
+                    justify-content: space-around;
+                    align-items: center;
+                    gap: 20px;
+                    button {
+                        width: 30%;
+                        height: 38px;
+                        border: 1px solid rgb(76, 120, 222);
+                        border-radius: 5px;
+                        background-color: white;
+                        color: rgb(76, 120, 222);
+                        font-size: 13px;
+                        font-weight: bold;
+                        text-transform: uppercase;
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                        &:hover {
+                            background-color: rgb(76, 120, 222);
+                            color: white;
+                            border-color: rgb(76, 120, 222);
+                        }
+                        &:active {
+                            transform: translateY(2px);
+                            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+                        }
+                    }
+                    .remove_all {
+                        width: 30%;
+                        height: 38px;
+                        border: 1px solid rgb(149, 14, 14);
+                        border-radius: 5px;
+                        background-color: white;
+                        color: rgb(149, 14, 14);
+                        font-size: 13px;
+                        font-weight: bold;
+                        text-transform: uppercase;
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                        &:hover {
+                            background-color: rgb(149, 14, 14);
+                            color: white;
+                            border-color: rgb(149, 14, 14);
+                        }
+                        &:active {
+                            transform: translateY(2px);
+                            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+                        }
+                    }
+                }
+                .table {
+                    width: 100%;
+                    height: 280px;
+                    overflow-x: hidden;
+                    overflow-y: scroll;
+                    padding-bottom: 10px;
+                    table {
+                        position: relative;
+                        width: 100%;
+                        border-collapse: collapse;
+                        border-radius: 8px;
+                        background-color: #ffffff;
+                        box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+                        thead {
+                            position: sticky;
+                            left: 0px;
+                            right: 0px;
+                            top: 0px;
+                            background-color: rgb(76, 120, 222);
+                            td {
+                                text-transform: uppercase;
+                                font-family: "Courier New", Courier, monospace;
+                                font-size: 15px;
+                                font-weight: bold;
+                            }
+                        }
+
+                        th,
+                        td {
+                            padding: 12px;
+                            text-align: center;
+                            border-bottom: 1px solid #dddddd;
+                        }
+                        
+                        tbody tr:hover {
+                            background-color: lavender;
+                        }
+                        
+
+                        tbody tr:nth-child(even) {
+                            background-color: rgb(239, 241, 245);
+                        }
+
+                        tbody tr td:nth-child(3){
+                            cursor: no-drop;
+                        }
+
+                        tbody tr td:nth-child(5){
+                            width: 100px;
+                        }
+
+                        tbody tr td:nth-child(4){
+                            input {
+                                width: 100px;
+                                border: 0.8px solid #dddddd;
+                                border-radius: 5px;
+                                text-align: center;
+                                height: 100%;
+                                padding: 10px
+                            }
+                        }
+
+                        .delete-button {
+                            background-color: rgb(233, 131, 131);
+                            color: #ffffff;
+                            padding: 8px 16px;
+                            border-radius: 4px;
+                            cursor: pointer;
+                            border: none;
+                            transition: background-color 0.3s ease;
+                        }
+
+                        .delete-button:hover {
+                            background-color: rgb(232, 36, 36);
+                        }
+                    }
+                }
+            }
+        }
+        .row_3{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 50px;
             button {
                 margin-right: 40px;
                 width: 300px;

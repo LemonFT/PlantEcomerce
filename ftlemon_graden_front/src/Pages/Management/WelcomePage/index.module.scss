@@ -1,0 +1,56 @@
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    background-color: #f0f0f0;
+    overflow: hidden;
+    background-size: cover;
+    background-image: url('https://www.pixelstalk.net/wp-content/uploads/images1/Amazing-Green-Plant-Macro-Wallpaper-Background.jpg');
+}
+
+.title {
+    position: relative;
+    color: white;
+    font-size: 36px;
+    margin-bottom: 20px;
+    opacity: 0;
+    transform: translateY(-100px);
+    animation: fadeInTitle 2s ease forwards;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); 
+    &::after{
+        position: absolute;
+        left: 0px;
+        content: "";
+        width: 150%;
+        transform: translate(-20%, -10%);
+        height: 150%;
+        background-color: rgba(12, 128, 28, 0.7);
+        z-index: -1;
+        border-radius: 10px;
+        filter: blur(2px);
+    }
+}
+
+.message {
+    color: #666;
+    font-size: 24px;
+    opacity: 0;
+    transform: translateY(100px);
+    animation: fadeInMessage 2s ease forwards;
+}
+
+@keyframes fadeInTitle {
+    to {
+        opacity: 1;
+        transform: translateY(-20px);
+    }
+}
+
+@keyframes fadeInMessage {
+    to {
+        opacity: 1;
+        transform: translateY(20px);
+    }
+}

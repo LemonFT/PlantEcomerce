@@ -35,5 +35,25 @@ const deleteSupplierById = async(id) => {
         return false;
     }
 }
-export { deleteSupplierById, getAllSupplier };
+
+const saveSupplier = async (supplier) => {
+    const token = await getToken();
+    try {
+        const response = await fetch(process.env.REACT_APP_BASEURL + `authenticed/api/supplier`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer "+token
+            },
+            body: JSON.stringify(supplier)
+        })
+        console.log((await response).json)
+        return (await response).text()
+    } catch (error) {
+        console.log(error)
+    }
+    return -1;
+}
+
+export { deleteSupplierById, getAllSupplier, saveSupplier };
 

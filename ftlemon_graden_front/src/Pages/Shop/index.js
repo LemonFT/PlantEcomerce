@@ -1,7 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import classNames from "classnames/bind";
 import React, { useContext, useEffect, useState } from "react";
-import { errorAlert } from "../../Components/Alert";
 import Header from "../../Components/Header";
 import Combobox from "../../Components/Selected";
 import SideBar from "../../Components/SideBar";
@@ -10,9 +9,10 @@ import Message from "../Message";
 import styles from "./index.module.scss";
 
 import { CiShoppingCart } from "react-icons/ci";
-import { IoIosArrowDropleft, IoIosArrowDropright, IoMdCheckmark } from "react-icons/io";
+import { IoMdCheckmark } from "react-icons/io";
 
 import { useNavigate } from "react-router-dom";
+import { errorAlert } from "../../Components/Alert";
 import Footer from "../../Components/Footer";
 import { addProductToCart, getProducts } from "../../Data/product";
 import img01 from "../../Images/1.png";
@@ -25,8 +25,8 @@ function Shop() {
     const styleIcon = { fontSize: '25px' }
     const navigate = useNavigate()
     const [showAlert, setShowAlert] = useState(false)
-    const { user, maxPrice, productCategory} = useContext(DataContext)
-    
+    const { user, maxPrice, productCategory } = useContext(DataContext)
+
     const [data, setData] = useState([])
     const [pageFocus, setPageFocus] = useState(1)
     const [categoryFil, setCategoryFil] = useState([])
@@ -37,15 +37,16 @@ function Shop() {
     useEffect(() => {
         const fetchData = async () => {
             const dt = await getProducts(1, NUMBER_PRODUCT_PERPAGE, "", null, null, []);
-            if(data != null) setData(dt)
+            if (data != null) setData(dt)
         }
         fetchData();
     }, [])
 
     useEffect(() => {
+        console.log(categoryFil)
         handleUpdateFilter()
     }, [pageFocus])
- 
+
     const handleRangeUpdate = (newRange) => {
         setPriceSlider(newRange)
     }
@@ -57,16 +58,18 @@ function Shop() {
     const handleUpdateFilter = async () => {
         const minNumber = parseInt(priceFilter[0]);
         const maxNumber = parseInt(priceFilter[1]);
-        const dt = await getProducts(pageFocus, NUMBER_PRODUCT_PERPAGE, searchFil, 
-            Number(minNumber), Number(maxNumber), 
-            categoryFil )
-        if(dt != null) setData(dt)
+        const dt = await getProducts(pageFocus, NUMBER_PRODUCT_PERPAGE, searchFil,
+            Number(minNumber), Number(maxNumber),
+            categoryFil || [])
+        if (dt != null) {
+            setData(dt)
+        }
     }
 
 
     const handlePageNumber = (index, plus, minus) => {
         if (plus) {
-            return Math.ceil(data.total_amount / 2) !== pageFocus && setPageFocus(pageFocus + 1)
+            return Math.ceil(data.total_amount / NUMBER_PRODUCT_PERPAGE) < pageFocus && setPageFocus(pageFocus + 1)
         }
         if (minus) {
             return 1 !== pageFocus && setPageFocus(pageFocus - 1)
@@ -81,9 +84,6 @@ function Shop() {
         }));
     }
 
-    const showErrorAlert = () => {
-        setShowAlert(showAlert === false ? true : true)
-    }
 
     useEffect(() => {
         const timeout = setTimeout(() => {
@@ -92,30 +92,26 @@ function Shop() {
         return () => clearTimeout(timeout)
     }, [showAlert])
 
-
-
     const Product = ({ className, item }) => {
         const [addCart, setAddCart] = useState(false);
         const [classAfter, setClassAfter] = useState("");
-        const {user} = useContext(DataContext)
+        const { user } = useContext(DataContext)
 
         useEffect(() => {
             addCart && setClassAfter('item-after')
         }, [addCart])
 
         const handleAddCart = async () => {
-            if(!user){
+            if (!user) {
                 navigate('/register')
-            }else{
+            } else {
                 const result = await addProductToCart(user.id, item.id, 1)
-                if(result === 1){
+                if (result === 1) {
                     setAddCart(true)
-                }else if(result === -1){
+                } else if (result === -1) {
                     errorAlert("The product is currently out of stock.")
-                    showErrorAlert()
-                }else{
+                } else {
                     errorAlert("Please check your internet again")
-                    showErrorAlert()
                 }
             }
         }
@@ -139,14 +135,14 @@ function Shop() {
                 <div className={cx('info')} onClick={() => navigateDetails(item?.id, item?.code, item?.name)}>
                     <h3 className={cx('name')}>{item.name}</h3>
                     <div className={cx('price')}>
-                        <span className={cx('price-default')} style={item.voucher === 0 ? {} : {textDecoration: 'line-through'}}>
+                        <span className={cx('price-default')} style={item.voucher === 0 ? {} : { textDecoration: 'line-through' }}>
                             {item.price} vnđ
                         </span>
                         {
-                            item.voucher !== 0 && <span>-{item.voucher*100}%</span>
+                            item.voucher !== 0 && <span>-{item.voucher * 100}%</span>
                         }
                         <span className={cx('price-voucher')}>
-                            {item.voucher === 0 ? "" : (Number(item.price) - Number(item.voucher*item.price))+" vnđ"}
+                            {item.voucher === 0 ? "" : (Number(item.price) - Number(item.voucher * item.price)) + " vnđ"}
                         </span>
                     </div>
                 </div>
@@ -175,18 +171,18 @@ function Shop() {
                 <div className={cx('input_search')}>
                     <input placeholder="Bạn cần tìm gì?" onChange={(e) => {
                         setSearchFil(e.target.value)
-                    }}/>
+                    }} />
                 </div>
                 <div className={cx('price_slider')}>
                     <PriceFilter min={0} max={maxPrice} funcGetRange={handleRangeUpdate} />
                 </div>
                 <div className={cx('category')}>
-                    <Combobox options={convertOptionProductCategory()} isMulti={true} closeMenuOnSelect={false} returnValue={handleCategorySelectUpdate}/>
+                    <Combobox options={convertOptionProductCategory()} isMulti={true} closeMenuOnSelect={false} returnValue={handleCategorySelectUpdate} />
                 </div>
             </div>
-                <div className={cx('btnFilter')}>
-                    <button onClick={() => handleUpdateFilter()}>Update</button>
-                </div>
+            <div className={cx('btnFilter')}>
+                <button onClick={() => handleUpdateFilter()}>Update</button>
+            </div>
             <div className={cx('products')}>
                 {
                     (data?.products)?.map((item, index) => {
@@ -195,15 +191,41 @@ function Shop() {
                 }
             </div>
             <div className={cx('pages-number')}>
-                <span><IoIosArrowDropleft style={styleIcon} onClick={() => handlePageNumber(1, false, true)} /></span>
                 {
-                    Array.from({ length: Math.ceil(data?.total_amount / 20) }, (_, index) => (
-                        <h3 style={pageFocus === index + 1 ? { borderBottomColor: "black" } : { borderBottomColor: "transparent" }} key={index} onClick={() => handlePageNumber(index + 1, false, false)}>
-                            {index + 1}
-                        </h3>
-                    ))
+                    (pageFocus === 1) ?
+                        <span className={cx('navi')} style={{ userSelect: 'none', backgroundColor: "gray" }}>
+                            PREV
+                        </span> :
+                        <span className={cx('navi')} onClick={() => handlePageNumber(1, false, true)}>
+                            PREV
+                        </span>
                 }
-                <span><IoIosArrowDropright style={styleIcon} onClick={() => handlePageNumber(1, true, false)} /></span>
+                {
+                    Array.from({ length: Math.ceil(data?.total_amount / NUMBER_PRODUCT_PERPAGE) }, (_, index) => {
+                        const maxIndex = Math.ceil(data?.total_amount / NUMBER_PRODUCT_PERPAGE)
+                        const flag = (pageFocus === 1 && index < 6)
+                                    || (pageFocus === 2 && index < 6)
+                                    || (pageFocus === maxIndex && index > maxIndex - 7)
+                                    || (pageFocus === maxIndex-1 && index > maxIndex - 7)
+                                    || (pageFocus === maxIndex-2 && index > maxIndex - 7)
+                                    || (index + 1 > pageFocus - 3 && index < pageFocus + 3) 
+                        return (<span style={flag ? { display: 'block' } : { display: 'none' }}>
+                            <h3 style={pageFocus === index + 1 ? { backgroundColor: "rgb(76, 120, 222)" } : { backgroundColor: "transparent" }} key={index} onClick={() => handlePageNumber(index + 1, false, false)}>
+                                {index + 1}
+                            </h3>
+                        </span>)
+                    })
+                }
+                {
+                    (Math.ceil(data.total_amount / NUMBER_PRODUCT_PERPAGE)) === pageFocus ?
+                        (<span className={cx('navi')} style={{ userSelect: 'none', backgroundColor: "gray" }}>
+                            NEXT
+                        </span>) :
+                        <span className={cx('navi')} onClick={() => handlePageNumber(1, true, false)}>
+                            NEXT
+                        </span>
+                }
+
             </div>
         </div>
         <Footer />

@@ -1,8 +1,9 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import classNames from "classnames/bind";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { CiTrash } from "react-icons/ci";
-import { GiSaveArrow } from "react-icons/gi";
 import { IoClose } from "react-icons/io5";
+import { MdOutlineSaveAlt } from "react-icons/md";
 import { errorAlert, processAlert, successAlert, warningAlert } from "../../../../Components/Alert";
 import { getAllProduct, updateProduct } from "../../../../Data/product";
 import { DataContext } from "../../../../Provider/DataProvider";
@@ -21,6 +22,7 @@ function UpdateProduct() {
 
     const [categoryForm, setCategoryForm] = useState(-1)
     const [updateImages, setUpdateImages] = useState(-1)
+    const [keySearch, setKeySearch] = useState("")
 
 
     const fetchData = async () => {
@@ -43,30 +45,37 @@ function UpdateProduct() {
         return productCategory.find(item => item.id === category_product_id)?.name;
     }
 
-    //     const handleSearch = () => {
-    //         const searchKey = ipSearch.current.value
-    //         const searchFilter = product.filter(item => {
-    //             const id = item.id.toString().toLowerCase()
-    //             const code = item.code.toString().toLowerCase()
-    //             const name = item.name.toString().toLowerCase()
-    //             const categoryName = getCategoryName(item.category_product_id).toString().toLowerCase()
-    //             const price = item.price.toString().toLowerCase()
-    //             const amount = item.amount.toString().toLowerCase()
-    //             const voucher = item.voucher.toString().toLowerCase()
-    // 
-    //             return (
-    //                 id.includes(searchKey) ||
-    //                 code.includes(searchKey) ||
-    //                 name.includes(searchKey) ||
-    //                 categoryName.includes(searchKey) ||
-    //                 price.includes(searchKey) ||
-    //                 amount.includes(searchKey) ||
-    //                 voucher.includes(searchKey)
-    //             );
-    //         }
-    //         );
-    //         setProductRender(searchFilter)
-    //     }
+    useEffect(() => {
+        handleSearch(keySearch)
+    }, [keySearch])
+
+    const updateKeySearch = (keySearch) => {
+        setKeySearch(keySearch.toLowerCase())
+    }
+
+    const handleSearch = (searchKey) => {
+        const searchFilter = product.filter(item => {
+            const id = item.id.toString().toLowerCase()
+            const code = item.code.toString().toLowerCase()
+            const name = item.name.toString().toLowerCase()
+            const categoryName = getCategoryName(item.category_product_id).toString().toLowerCase()
+            const price = item.price.toString().toLowerCase()
+            const amount = item.amount.toString().toLowerCase()
+            const voucher = item.voucher.toString().toLowerCase()
+
+            return (
+                id.includes(searchKey) ||
+                code.includes(searchKey) ||
+                name.includes(searchKey) ||
+                categoryName.includes(searchKey) ||
+                price.includes(searchKey) ||
+                amount.includes(searchKey) ||
+                voucher.includes(searchKey)
+            );
+        }
+        );
+        setProductRender(searchFilter)
+    }
 
     const funcCallBack = (product_id, category_id) => {
         if (category_id) {
@@ -123,15 +132,15 @@ function UpdateProduct() {
             const priceEdt = price.current.value
             const amountEdt = amount.current.value
             const voucherEdt = voucher.current.value
-            if(nameEdt === "" || descEdt === "" || categoryEdt === ""){
+            if (nameEdt === "" || descEdt === "" || categoryEdt === "") {
                 warningAlert("Please, check information and try update again!")
                 return;
             }
-            if(Number(priceEdt) < 0 || amountEdt < 0){
+            if (Number(priceEdt) < 0 || amountEdt < 0) {
                 warningAlert("Price, amount must be greater than or equal to 0")
                 return;
             }
-            if(Number(voucherEdt) < 0 || Number(voucherEdt) > 1){
+            if (Number(voucherEdt) < 0 || Number(voucherEdt) > 1) {
                 warningAlert("Voucher must be between 0 and 1")
                 return;
             }
@@ -152,7 +161,7 @@ function UpdateProduct() {
                 setTimeout(() => {
                     successAlert("Update successful")
                 }, 1000);
-            }else{
+            } else {
                 errorAlert(resultUpdate)
             }
         }
@@ -190,7 +199,7 @@ function UpdateProduct() {
                     <input ref={display} type="checkbox" defaultChecked={item?.display} />
                 </td>
                 <td>
-                    <GiSaveArrow style={styleIcon} onClick={() => handleUpdateProduct()} />
+                    <MdOutlineSaveAlt style={styleIcon} onClick={() => handleUpdateProduct()} />
                 </td>
                 <td>
                     <CiTrash style={styleIcon} />
@@ -203,58 +212,58 @@ function UpdateProduct() {
         {updateImages !== -1 && <BoxImages id={updateImages} funcCallBack={() => {
             setUpdateImages(-1)
             fetchData()
-        }}/>}
+        }} />}
 
         {
-        updateImages === -1 && <div className={cx('product')}>
-            <HeaderProduct />
-            <div className={cx('table')}>
-                {categoryForm !== -1 && <ShowCategoryForm id={categoryForm} funcCallBack={funcCallBack} />}
-                <table>
-                    <thead>
-                        <tr>
-                            <td>id</td>
-                            <td>code</td>
-                            <td>name</td>
-                            <td>description</td>
-                            <td>category</td>
-                            <td>image</td>
-                            <td>price</td>
-                            <td>amount</td>
-                            <td>voucher (%)</td>
-                            <td>display</td>
-                            <td>update</td>
-                            <td>delete</td>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {
-                            (productRender)?.map((item, index) => (
-                                <Row key={index} item={item} />
-                            ))
-                        }
-                        {
-                            productRender.length === 0 && (
-                                <tr className={cx('no-data')}>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td>Không có</td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                </tr>
-                            )
-                        }
-                    </tbody>
-                </table>
+            updateImages === -1 && <div className={cx('product')}>
+                <HeaderProduct returnKeySearch={updateKeySearch} />
+                <div className={cx('table')}>
+                    {categoryForm !== -1 && <ShowCategoryForm id={categoryForm} funcCallBack={funcCallBack} />}
+                    <table>
+                        <thead>
+                            <tr>
+                                <td>id</td>
+                                <td>code</td>
+                                <td>name</td>
+                                <td>description</td>
+                                <td>category</td>
+                                <td>image</td>
+                                <td>price</td>
+                                <td>amount</td>
+                                <td>voucher (%)</td>
+                                <td>display</td>
+                                <td>update</td>
+                                <td>delete</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {
+                                (productRender)?.map((item, index) => (
+                                    <Row key={index} item={item} />
+                                ))
+                            }
+                            {
+                                productRender.length === 0 && (
+                                    <tr className={cx('no-data')}>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td>Không có</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                )
+                            }
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        </div>
         }
     </>);
 }

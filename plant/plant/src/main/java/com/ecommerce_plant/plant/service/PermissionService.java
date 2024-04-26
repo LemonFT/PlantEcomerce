@@ -8,12 +8,21 @@ import org.springframework.stereotype.Service;
 import com.ecommerce_plant.plant.model.Permission;
 import com.ecommerce_plant.plant.repository.PermissionRep;
 
+/**
+ * 
+ * @Author: Your Name <your@email.com>
+ */
+
 @Service
 public class PermissionService {
     @Autowired
     PermissionRep permissionRep;
 
-    public List<Permission> findPermissionByUserID(int user_id) {
-        return permissionRep.findPermissionByUserID(user_id);
+    public List<Permission> findPermissionByUserId(int userId) {
+        return permissionRep.findPermissionByUserId(userId);
+    }
+
+    public List<Permission> findAllPermission() {
+        return permissionRep.findAllPermissions();
     }
 }

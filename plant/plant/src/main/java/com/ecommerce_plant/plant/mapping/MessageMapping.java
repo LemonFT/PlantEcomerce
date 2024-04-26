@@ -13,6 +13,10 @@ import com.ecommerce_plant.plant.service.UserService;
 
 import io.github.cdimascio.dotenv.Dotenv;
 
+/**
+ * 
+ * @Author: Your Name <your@email.com>
+ */
 @Component
 public class MessageMapping {
     @Autowired
@@ -24,9 +28,9 @@ public class MessageMapping {
         for (Message message : messages) {
             User user = userService.getUser(message.getUser_send_id());
             Dotenv dotenv = Dotenv.load();
-            int admin_role = Integer.parseInt(dotenv.get("REACT_APP_ADMIN_ROLE"));
-            if (admin_role == user.getRole_id()) {
-                user.setRole_id(ROLE_ID_FAKE);
+            int adminRole = Integer.parseInt(dotenv.get("REACT_APP_ADMIN_ROLE"));
+            if (adminRole == user.getRoleId()) {
+                user.setRoleId(ROLE_ID_FAKE);
             }
             user.setPassword("");
             messageModelMaps.add(new MessageModelMap(user, message));

@@ -68,7 +68,7 @@ function Header() {
                 </div>
             </div>
             <div className={cx('header-right')}>
-                {(user?.role)?.toString() === process.env.REACT_APP_ADMIN_ROLE &&
+                {(user?.role)?.toString() !== process.env.REACT_APP_CUSTOMER_ROLE && user?.permissions?.length > 1 &&
                     <Link to={"/admin"}>
                         <RiAdminLine style={styleIcon} />
                     </Link>
@@ -77,7 +77,10 @@ function Header() {
                     updateFocus(4)
                 }}><span><CiShoppingCart style={styleIcon} /></span></Link>
                 {
-                    (user && !(user?.role)?.toString() === process.env.REACT_APP_ADMIN_ROLE) && <Link><span onClick={() => { updateMess() }}><IoChatboxOutline style={styleIcon} /></span></Link>
+                    (user && ((user?.role)?.toString() === (process.env.REACT_APP_CUSTOMER_ROLE).toString())) &&
+                     <Link><span onClick={() => { updateMess() }}>
+                        <IoChatboxOutline style={styleIcon} />
+                    </span></Link>
                 }
                 <span className={cx('line-vertical')}><TbMinusVertical style={styleIcon} /></span>
                 <Link><span onClick={() => { updateSideBar() }}><CiMenuFries style={styleIcon} /></span></Link>

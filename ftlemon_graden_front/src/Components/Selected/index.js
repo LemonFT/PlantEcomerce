@@ -5,7 +5,7 @@ import makeAnimated from "react-select/animated";
 import styles from "./index.module.scss";
 
 const animatedComponents = makeAnimated();
-function Combobox({options, placeholder, isMulti, closeMenuOnSelect, returnValue, width, refresh}) {
+function Combobox({options, placeholder, isMulti, closeMenuOnSelect, returnValue, width}) {
     const cx = classNames.bind(styles)
     const [value, setValue] = useState()
 
@@ -15,9 +15,11 @@ function Combobox({options, placeholder, isMulti, closeMenuOnSelect, returnValue
 
 
 
+
     return ( <>
         <div className={cx('box-select')} style={width ? { width: `${width}px`, height: '38px' } : {width: '300px', height: '38px'}}>
             <Select
+                    isSearchable
                     className={cx('select')}
                     options={options}
                     closeMenuOnSelect={closeMenuOnSelect}

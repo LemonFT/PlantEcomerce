@@ -1,5 +1,5 @@
 import classNames from "classnames/bind";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { IoIosAddCircleOutline } from "react-icons/io";
 import { MdPostAdd } from "react-icons/md";
 import { TbTableExport } from "react-icons/tb";
@@ -8,8 +8,9 @@ import { getAllProduct } from "../../../../Data/product";
 import { EffectContext } from "../../../../Provider/EffectProvider";
 import styles from "../index.module.scss";
 
-function HeaderProduct() {
+function HeaderProduct({returnKeySearch}) {
     const cx = classNames.bind(styles)
+    const inputSearch = useRef(null)
     const styleIcon = { fontSize: '25px' }
     const { focusLinkProduct, updateFocusLinkProduct } = useContext(EffectContext)
     const navigate = useNavigate()
@@ -28,6 +29,10 @@ function HeaderProduct() {
         fetchData()
     }, [])
 
+    const search = () => {
+        returnKeySearch(inputSearch.current.value)
+    }
+
     useEffect(() => {
         switch (currentPath) {
             case "/admin/product-add":
@@ -45,30 +50,6 @@ function HeaderProduct() {
         }
     }, [currentPath, updateFocusLinkProduct])
 
-    const handleSearch = () => {
-        //         const searchKey = ipSearch.current.value
-        //         const searchFilter = product.filter(item => {
-        //             const id = item.id.toString().toLowerCase()
-        //             const code = item.code.toString().toLowerCase()
-        //             const name = item.name.toString().toLowerCase()
-        //             const categoryName = getCategoryName(item.category_product_id).toString().toLowerCase()
-        //             const price = item.price.toString().toLowerCase()
-        //             const amount = item.amount.toString().toLowerCase()
-        //             const voucher = item.voucher.toString().toLowerCase()
-        // 
-        //             return (
-        //                 id.includes(searchKey) ||
-        //                 code.includes(searchKey) ||
-        //                 name.includes(searchKey) ||
-        //                 categoryName.includes(searchKey) ||
-        //                 price.includes(searchKey) ||
-        //                 amount.includes(searchKey) ||
-        //                 voucher.includes(searchKey)
-        //             );
-        //         }
-        //         );
-        //         setProductRender(searchFilter)
-    }
 
     const styleFocus = { backgroundColor: 'rgb(76, 120, 222)'}
 
@@ -80,7 +61,7 @@ function HeaderProduct() {
             </div>
             <div className={cx('btns')}>
                 <div className={cx('search')}>
-                    <input placeholder="Search..." onChange={() => handleSearch()} />
+                    <input readOnly={focusLinkProduct !== 0} style={focusLinkProduct === 0 ? {} : {opacity: '0'}} ref={inputSearch} placeholder="Search..." onChange={() => search()} />
                 </div>
                 <div className={cx('button')} style={focusLinkProduct === 1 ? {...styleFocus} : {}}
                     onClick={() => navigate("/admin/product-add")}

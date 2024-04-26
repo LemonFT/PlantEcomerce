@@ -72,6 +72,12 @@ function AddProduct() {
         setVoucher(null)
     }
 
+    const handlePrice = () => {
+        if(isNaN(Number(refPrice.current.value))){
+            refPrice.current.value = ""
+        }
+    }
+
     const handleSaveProduct = async () => {
         const codeStr = refCode.current.value;
         const nameStr = refName.current.value;
@@ -132,7 +138,7 @@ function AddProduct() {
                 <div className={cx('row_2')}>
                     <div className={cx('edits')}>
                         <div className={cx('edt_add', 'edt_price')}>
-                            <input ref={refPrice} id='price' placeholder="" />
+                            <input onBlur={() => handlePrice()} ref={refPrice} id='price' placeholder="" />
                             <label htmlFor="price">Price</label>
                         </div>
                         <div className={cx('edt_add', 'edt_category')}>

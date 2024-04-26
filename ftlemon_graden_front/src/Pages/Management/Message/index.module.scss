@@ -24,6 +24,14 @@
                 border-bottom: 2px solid var(--mainColor);
                 outline: none;
             }
+            svg{
+                cursor: pointer;
+                transition: all .2s;
+                &:active{
+                    color: green;
+                    transform: scale(1.2);
+                }
+            }
         }
         .items::-webkit-scrollbar {
             width: 0px;
@@ -46,9 +54,11 @@
                 transition: all 0.3s;
             }
             .item {
+                position: relative;
                 display: flex;
                 justify-content: left;
                 align-items: center;
+                flex-wrap: wrap;
                 width: 90%;
                 gap: 20px;
                 padding: 5px 10px;
@@ -79,6 +89,16 @@
                         max-width: 200px;
                         overflow: hidden;
                         max-height: 20px;
+                    }
+                }
+                .delete{
+                    position: absolute;
+                    right: 3px;
+                    cursor: pointer;
+                    &:hover{
+                        svg{
+                            color: red;
+                        }
                     }
                 }
             }
@@ -119,11 +139,13 @@
             flex-direction: column;
             overflow-y: scroll;
             height: 79%;
+            overflow-x: hidden;
             .message {
                 display: flex;
                 align-items: center;
                 gap: 10px;
                 max-width: 70%;
+                max-height: max-content;
                 padding: 5px 10px;
                 margin: 5px 0px;
                 .avatar {
@@ -140,13 +162,17 @@
                     border: 0.5px solid gray;
                     color: whitesmoke;
                     background-color: black;
+                    max-height: max-content;
                     border-radius: 5px;
                     padding: 5px 10px;
                     display: flex;
                     flex-direction: column;
                     .mess {
                         h4 {
+                            display: block;
+                            max-height: max-content;
                             font-weight: 500;
+                            word-break: break-all;
                         }
                     }
                     .time {

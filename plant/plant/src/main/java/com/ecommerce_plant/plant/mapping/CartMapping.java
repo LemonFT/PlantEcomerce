@@ -11,6 +11,10 @@ import com.ecommerce_plant.plant.model.Cart;
 import com.ecommerce_plant.plant.model.Product;
 import com.ecommerce_plant.plant.service.ProductService;
 
+/**
+ * 
+ * @Author: Your Name <your@email.com>
+ */
 @Component
 public class CartMapping {
     @Autowired
