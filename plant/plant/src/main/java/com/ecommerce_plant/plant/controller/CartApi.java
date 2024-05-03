@@ -28,9 +28,9 @@ public class CartApi {
     @Autowired
     CartMapping cartMapping;
 
-    @GetMapping("authenticed/api/cart/{user_id}")
-    public ResponseEntity<?> getProductsInCartUser(@PathVariable int user_id) {
-        List<Cart> productsCart = cartService.getProductsInCartUser(user_id);
+    @GetMapping("authenticed/api/cart/{userId}")
+    public ResponseEntity<?> getProductsInCartUser(@PathVariable int userId) {
+        List<Cart> productsCart = cartService.getProductsInCartUser(userId);
         return ResponseEntity.ok().body(cartMapping.getInfoProductInCart(productsCart));
     }
 
@@ -40,18 +40,18 @@ public class CartApi {
             return ResponseEntity.notFound().build();
         }
         return cartService.insertCart(info) ? ResponseEntity.ok().body("insert success")
-                : ResponseEntity.badRequest().body("no internet");
-    }
-
-    @DeleteMapping("authenticed/api/cart/{user_id}/{product_id}")
-    public ResponseEntity<?> deleteProduct(@PathVariable int user_id, @PathVariable int product_id) {
-        return cartService.deleteProductInCart(user_id, product_id) ? ResponseEntity.ok().body("delete success")
                 : ResponseEntity.notFound().build();
     }
 
-    @DeleteMapping("authenticed/api/cart/{user_id}")
-    public ResponseEntity<?> deleteAllProduct(@PathVariable int user_id) {
-        return cartService.deleteAllProductInCart(user_id) ? ResponseEntity.ok().body("delete success")
+    @DeleteMapping("authenticed/api/cart/{userId}/{productId}")
+    public ResponseEntity<?> deleteProduct(@PathVariable int userId, @PathVariable int productId) {
+        return cartService.deleteProductInCart(userId, productId) ? ResponseEntity.ok().body("delete success")
+                : ResponseEntity.notFound().build();
+    }
+
+    @DeleteMapping("authenticed/api/cart/{userId}")
+    public ResponseEntity<?> deleteAllProduct(@PathVariable int userId) {
+        return cartService.deleteAllProductInCart(userId) ? ResponseEntity.ok().body("delete success")
                 : ResponseEntity.notFound().build();
     }
 

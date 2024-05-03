@@ -31,6 +31,7 @@
         justify-content: right;
         align-items: center;
         gap: 40px;
+        margin-right: 150px;
         .search {
             input {
                 width: 300px;
@@ -177,7 +178,7 @@
                         justify-content: left;
                         align-items: center;
                         font-size: 10px;
-                        height: 74.8px;
+                        height: 100px;
                         cursor: pointer;
                     }
 
@@ -229,8 +230,8 @@
             align-items: center;
             flex-direction: column;
             gap: 30px;
-            width: 430px;
-            height: 500px;
+            width: 40%;
+            height: 85%;
             background-color: white;
             border: 1px solid rgb(76, 120, 222);
             border-radius: 10px;

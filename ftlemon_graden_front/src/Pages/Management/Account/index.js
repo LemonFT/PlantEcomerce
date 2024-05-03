@@ -18,11 +18,12 @@ function Account() {
     const cx = classNames.bind(styles)
     const keySearch = useRef(null)
     const styleIcon = { fontSize: '30px' }
-    const {user} = useContext(DataContext)
+    const { user } = useContext(DataContext)
     const [accounts, setAccounts] = useState([])
     const [roles, setRoles] = useState([])
     const [showFormAddAccount, setShowFormAddAccount] = useState(false)
     const [accountsRender, setAccountsRender] = useState([])
+    const [accountEdit, setAccountEdit] = useState(null)
 
     useEffect(() => {
         fetchUsers()
@@ -38,11 +39,11 @@ function Account() {
         const filteredAccounts = accounts.filter((item) => {
             return (
                 (item.id.toString().toLowerCase().includes(keySearchStrLowerCase) ||
-                keySearchStrLowerCase.includes(item.id.toString().toLowerCase()) ||
-                item.email.toLowerCase().includes(keySearchStrLowerCase) ||
-                keySearchStrLowerCase.includes(item.email.toLowerCase()) ||
-                item.name.toLowerCase().includes(keySearchStrLowerCase) ||
-                keySearchStrLowerCase.includes(item.name.toLowerCase())) && item.id !== user.id
+                    keySearchStrLowerCase.includes(item.id.toString().toLowerCase()) ||
+                    item.email.toLowerCase().includes(keySearchStrLowerCase) ||
+                    keySearchStrLowerCase.includes(item.email.toLowerCase()) ||
+                    item.name.toLowerCase().includes(keySearchStrLowerCase) ||
+                    keySearchStrLowerCase.includes(item.name.toLowerCase())) && item.id !== user.id
             );
         });
         setAccountsRender(filteredAccounts);
@@ -63,9 +64,9 @@ function Account() {
         return roleItem?.name || ""
     }
 
-    const resultSearch = useDebounce(handleSearch, 1000)
+    const searchDebounceFunction = useDebounce(handleSearch, 1000)
     const handleSearchDebounce = () => {
-        resultSearch(keySearch.current.value)
+        searchDebounceFunction(keySearch.current.value)
     }
 
     const Row = ({ account, index }) => {
@@ -85,11 +86,11 @@ function Account() {
             console.log(blockRef.current.checked)
             const emailStr = emailRef.current.value
             const usernameStr = usernameRef.current.value
-            if(!validator.isEmail(emailStr)){
+            if (!validator.isEmail(emailStr)) {
                 warningAlert("Email invalid!")
                 return
             }
-            if(usernameStr.length < 6){
+            if (usernameStr.length < 6) {
                 warningAlert("Username invalid (>=6)!")
                 return
             }
@@ -101,10 +102,10 @@ function Account() {
             })
             processAlert("The update is in progress", "Completed in");
             setTimeout(() => {
-                if(resultUpdate === "Update successful"){
+                if (resultUpdate === "Update successful") {
                     successAlert(resultUpdate)
                     fetchUsers()
-                }else{
+                } else {
                     errorAlert(resultUpdate)
                 }
             }, 1200);
@@ -114,16 +115,21 @@ function Account() {
             const resultDelete = await deleteAccount(account.id)
             processAlert("The delete is in progress", "Completed in");
             setTimeout(() => {
-                if(resultDelete === "Delete account successful"){
+                if (resultDelete === "Delete account successful") {
                     successAlert(resultDelete)
                     fetchUsers()
-                }else{
+                } else {
                     errorAlert(resultDelete)
                 }
             }, 1200);
         }
 
-    
+        const handleEditRole = (account) => {
+            setAccountEdit(account)
+            setShowFormAddAccount(true)
+        }
+
+
 
         return <>
             <tr key={index} className={cx('row')}>
@@ -136,7 +142,7 @@ function Account() {
                         {getRoleById(account.role)}
                     </span>
                     <Tippy content="Edit now">
-                        <span>
+                        <span onClick={() => { handleEditRole(account) }}>
                             <CiEdit style={{ fontSize: '20px' }} />
                         </span>
                     </Tippy>
@@ -151,7 +157,7 @@ function Account() {
                     </button>
                 </td>
                 <td>
-                    <button className={cx('delete-button')}  onClick={() => deleteAcc()}>
+                    <button className={cx('delete-button')} onClick={() => deleteAcc()}>
                         <CiTrash style={styleIcon} />
                     </button>
                 </td>
@@ -201,7 +207,15 @@ function Account() {
                 </div>
             </div>
             {
-                showFormAddAccount && <BoxAddAccountAndRole loadAccount={() => {fetchUsers()}} close={() => setShowFormAddAccount(false)} />
+                showFormAddAccount &&
+                <BoxAddAccountAndRole
+                    loadAccount={() => { fetchUsers() }}
+                    close={() => {
+                        setShowFormAddAccount(false)
+                        setAccountEdit(null)
+                    }
+                    }
+                    account={accountEdit} />
             }
         </div>
     </>);

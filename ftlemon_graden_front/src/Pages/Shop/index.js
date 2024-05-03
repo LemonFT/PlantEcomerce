@@ -92,7 +92,7 @@ function Shop() {
         return () => clearTimeout(timeout)
     }, [showAlert])
 
-    const Product = ({ className, item }) => {
+    const Product = ({ className, item, index }) => {
         const [addCart, setAddCart] = useState(false);
         const [classAfter, setClassAfter] = useState("");
         const { user } = useContext(DataContext)
@@ -110,8 +110,6 @@ function Shop() {
                     setAddCart(true)
                 } else if (result === -1) {
                     errorAlert("The product is currently out of stock.")
-                } else {
-                    errorAlert("Please check your internet again")
                 }
             }
         }
@@ -120,7 +118,7 @@ function Shop() {
             navigate(`/productdetails?product-id=${id}&code=${code}&name=${name}`)
         }
         return <>
-            <div className={cx('item', `${className}`, `${classAfter}`)}>
+            <div className={cx('item', `${className}`, `${classAfter}`)} key={index}>
                 <button onClick={() => handleAddCart()}>
                     <span className={cx('text')}>
                         {addCart ? "" : "add to cart"}
@@ -186,7 +184,7 @@ function Shop() {
             <div className={cx('products')}>
                 {
                     (data?.products)?.map((item, index) => {
-                        return <Product className={"item-render"} key={index} item={item} />
+                        return <Product className={"item-render"} index={index} item={item} />
                     })
                 }
             </div>

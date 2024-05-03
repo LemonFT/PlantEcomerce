@@ -1,9 +1,14 @@
 import { defaults } from "chart.js/auto";
 import classNames from "classnames/bind";
 import { Doughnut, Line } from "react-chartjs-2";
+import { BsCashCoin } from "react-icons/bs";
+import { FaUsers } from "react-icons/fa";
+import { GrVisa } from "react-icons/gr";
+import { RiPlantFill } from "react-icons/ri";
 import styles from "./index.module.scss";
 function DashBoard() {
     const cx = classNames.bind(styles)
+    const styleIcon = {fontSize: '25px'}
     defaults.maintainAspectRatio = false
     defaults.responsive = true
 
@@ -18,25 +23,33 @@ function DashBoard() {
             <div className={cx('topic-1')}>
                 <div className={cx('topic-1-container')}>
                     <div className={cx('total-user', 'topic-1-item')}>
-                        <div className={cx('title')}>User</div>
+                        <div className={cx('title')}>
+                            <FaUsers style={styleIcon} />
+                        </div>
                         <div className={cx('data')}>
                             <h1 className={cx('total')}>167<span>USER</span></h1>
                         </div>
                     </div>
-                    <div className={cx('total-revenue-day', 'topic-1-item')}>
-                        <div className={cx('title')}>Daily Revenue</div>
+                    <div className={cx('plants', 'topic-1-item')}>
+                        <div className={cx('title')}>
+                            <RiPlantFill style={styleIcon} />
+                        </div>
                         <div className={cx('data')}>
                             <h1 className={cx('total')}>1300000<span>VND</span></h1>
                         </div>
                     </div>
-                    <div className={cx('total-revenue-month', 'topic-1-item')}>
-                        <div className={cx('title')}>Monthly Revenue</div>
+                    <div className={cx('total-revenue-cash', 'topic-1-item')}>
+                        <div className={cx('title')}>
+                            <BsCashCoin style={styleIcon} />
+                        </div>
                         <div className={cx('data')}>
                             <h1 className={cx('total')}>17889999<span>VND</span></h1>
                         </div>
                     </div>
-                    <div className={cx('total-revenue-month', 'topic-1-item')}>
-                        <div className={cx('title')}>Monthly Revenue</div>
+                    <div className={cx('total-revenue-vnpay', 'topic-1-item')}>
+                        <div className={cx('title')}>
+                            <GrVisa style={styleIcon} />
+                        </div>
                         <div className={cx('data')}>
                             <h1 className={cx('total')}>17889999<span>VND</span></h1>
                         </div>

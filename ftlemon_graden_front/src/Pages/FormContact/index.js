@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import classNames from "classnames/bind";
 import { useContext, useEffect, useRef, useState } from "react";
 import { GoPlus } from "react-icons/go";
@@ -26,9 +27,20 @@ function FormContact({ functionCallBack }) {
     }, [user])
 
     useEffect(() => {
-        setTimeout(() => {
+        const fetchData = async () => {
+            const dt = await getContact(user?.id);
+            if (dt !== null) {
+                setContacts(dt)
+            }
+        }
+        fetchData()
+    }, [showOption])
+
+    useEffect(() => {
+        const t = setTimeout(() => {
             setAlert("")
         }, 2000);
+        return () => clearTimeout(t)
     }, [alert])
 
     const ItemContact = ({ contact }) => {
@@ -162,6 +174,7 @@ function FormContact({ functionCallBack }) {
             } else {
                 const result = await saveContact(user?.id, addressCategory, address, phone_number)
                 if (result !== false) {
+                    console.log(result)
                     setAlert(result)
                 }
             }
@@ -176,7 +189,7 @@ function FormContact({ functionCallBack }) {
                     <input ref={ipPhoneNumber} placeholder="Phone number" />
                     <div className={cx('category-contact')}>
                         <div className={cx('option')}>
-                            <input type="radio" id="category1" name="category" defaultChecked="true"/>
+                            <input ref={ipAddressCategory}  type="radio" id="category1" name="category" defaultChecked="true"/>
                             <label htmlFor="category1">Nhà riêng</label>
                         </div>
                         <div className={cx('option')}>
@@ -184,6 +197,9 @@ function FormContact({ functionCallBack }) {
                             <label htmlFor="category2">Văn phòng</label>
                         </div>
                     </div>
+                </div>
+                <div className={cx('alert-error')}>
+                    <span>{alert !== "" && alert}</span>
                 </div>
                 <div className={cx('btn-add')}>
                     <button onClick={() => handleUpdateContact()}>Update</button>

@@ -300,6 +300,19 @@
             }
         }
     }
+    .alert-error{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        span{
+            color: red;
+            font-size: 12px;
+            text-transform: uppercase;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+        }
+    }
     .btn-add {
         width: 100%;
         display: flex;

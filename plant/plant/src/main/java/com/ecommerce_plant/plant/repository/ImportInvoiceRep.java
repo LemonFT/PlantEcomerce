@@ -1,10 +1,12 @@
 package com.ecommerce_plant.plant.repository;
 
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -16,8 +18,11 @@ import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import com.ecommerce_plant.plant.model.ImportInvoice;
 import com.ecommerce_plant.plant.model.ImportInvoiceDetail;
 
+/**
+ * @author lemonftdev
+ */
 @Repository
-@Transactional
+@Transactional(rollbackFor = { SQLException.class, DataAccessException.class })
 public class ImportInvoiceRep {
 
     @Autowired

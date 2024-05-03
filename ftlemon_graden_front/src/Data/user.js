@@ -173,6 +173,23 @@ const updateAccount = async (data) => {
     }
     return "Check internet and try again!"
 }
+const updateRoleAccount = async (data) => {
+    const token = await getToken()
+    try {
+        const response = await fetch(process.env.REACT_APP_BASEURL + `authenticed/api/user-role`, {
+            method: 'PUT', 
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer '+token
+            },
+            body: JSON.stringify(data)
+        })
+        return (await response).text()
+    } catch (error) {
+        console.error(error)
+    }
+    return "Check internet and try again!"
+}
 const deleteAccount = async (accountId) => {
     const token = await getToken()
     try {
@@ -206,8 +223,26 @@ const createAccount = async (data) => {
     }
     return "Check internet and try again!"
 }
+const getVerificationEmailCode = async (email) => {
+    const token = await getToken()
+    try {
+        const response = await fetch(process.env.REACT_APP_BASEURL + `authenticed/api/verification-email`, {
+            method: 'POST', 
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify({
+                email: email
+            })
+        })
+        return response.text()
+    } catch (error) {
+        console.error(error)
+    }
+}
 export {
-    createAccount, deleteAccount, getAllAccounts, getContact, getInfoUser, register,
-    saveContact, signIn, updateAccount, updateContact
+    createAccount, deleteAccount, getAllAccounts, getContact, getInfoUser, getVerificationEmailCode, register,
+    saveContact, signIn, updateAccount, updateContact, updateRoleAccount
 };
 

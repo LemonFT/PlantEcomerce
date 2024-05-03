@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import com.ecommerce_plant.plant.model.User;
 
@@ -13,6 +15,7 @@ import com.ecommerce_plant.plant.model.User;
  * @author lemonftdev
  */
 @Repository
+@Transactional
 public class UserRep {
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -28,7 +31,7 @@ public class UserRep {
 
     @SuppressWarnings("deprecation")
     public User findUser(int userId) {
-        String sql = "SELECT * FROM user where id = ?";
+        String sql = "SELECT * FROM user where id = ? AND deleted = 0";
         try {
             return jdbcTemplate.queryForObject(sql, new Object[] { userId },
                     BeanPropertyRowMapper.newInstance(User.class));
@@ -39,7 +42,7 @@ public class UserRep {
 
     @SuppressWarnings("deprecation")
     public User findUser(String email) {
-        String sql = "SELECT * FROM user where email COLLATE utf8mb4_bin = ?";
+        String sql = "SELECT * FROM user where email COLLATE utf8mb4_bin = ? AND deleted = 0";
         try {
             return jdbcTemplate.queryForObject(sql, new Object[] { email },
                     BeanPropertyRowMapper.newInstance(User.class));
@@ -61,7 +64,7 @@ public class UserRep {
 
     @SuppressWarnings("deprecation")
     public User findUserIsAdmin(int roleId) {
-        String sql = "SELECT * FROM user join role on role.id = user.role_id where role.id = ? and block = ? limit 1";
+        String sql = "SELECT * FROM user join role on role.id = user.role_id where role.id = ? and block = ? and deleted = 0 limit 1";
         try {
             return jdbcTemplate.queryForObject(sql, new Object[] { roleId, false },
                     BeanPropertyRowMapper.newInstance(User.class));
@@ -84,8 +87,16 @@ public class UserRep {
     }
 
     public boolean deleteUser(int id) {
-        String sql = "UPDATE user SET deleted = 1 WHERE id = ?";
-        return jdbcTemplate.update(sql, id) > 0;
+        try {
+            String sql = "UPDATE user SET deleted = 1 WHERE id = ?";
+            jdbcTemplate.update(sql, id);
+            String sqlProcedure = "{CALL update_email_username_after_update_procedure(?)}";
+            jdbcTemplate.update(sqlProcedure, id);
+            return true;
+        } catch (Exception e) {
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return false;
+        }
     }
 
 }

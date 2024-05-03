@@ -28,7 +28,7 @@ function App() {
 
   const PermissionByUser = () => {
     let permissionAuth = [];
-    user?.permissions.forEach(permission => {
+    user?.permissions?.forEach(permission => {
       if (permission?.name === "VIEW_STATISTICS") {
         permissionAuth.push(
           { path: '/admin/dashboard', element: <Management><DashBoard /></Management> }

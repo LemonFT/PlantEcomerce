@@ -6,18 +6,29 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.ecommerce_plant.plant.model.Cart;
+import com.ecommerce_plant.plant.model.Product;
 import com.ecommerce_plant.plant.repository.CartRep;
+import com.ecommerce_plant.plant.repository.ProductRep;
 
+/**
+ * @author lemonftdev
+ */
 @Service
 public class CartService {
     @Autowired
     CartRep cartRep;
+    @Autowired
+    ProductRep productRep;
 
-    public List<Cart> getProductsInCartUser(int user_id) {
-        return cartRep.findAllCartsByUserId(user_id);
+    public List<Cart> getProductsInCartUser(int userId) {
+        return cartRep.findAllCartsByUserId(userId);
     }
 
     public boolean insertCart(Cart cart) {
+        Product product = productRep.findProduct(cart.getProduct_id());
+        if (product.getAmount() < cart.getNumber()) {
+            return false;
+        }
         boolean result = false;
         Cart exist = cartRep.checkExistProduct(cart.getUser_id(), cart.getProduct_id());
         if (exist != null) {
@@ -30,11 +41,11 @@ public class CartService {
         return result;
     }
 
-    public boolean deleteProductInCart(int user_id, int product_id) {
-        return cartRep.deleteCart(user_id, product_id);
+    public boolean deleteProductInCart(int userId, int productId) {
+        return cartRep.deleteCart(userId, productId);
     }
 
-    public boolean deleteAllProductInCart(int user_id) {
-        return cartRep.deleteAllCartByUser(user_id);
+    public boolean deleteAllProductInCart(int userId) {
+        return cartRep.deleteAllCartByUser(userId);
     }
 }

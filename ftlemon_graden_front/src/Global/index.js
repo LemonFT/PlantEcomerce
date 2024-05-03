@@ -1,12 +1,13 @@
+import CryptoJS from 'crypto-js';
 import { jwtDecode } from "jwt-decode";
 import { Cookies } from "react-cookie";
 
 function formatDate(date) {
     if (!date) {
-        return 'N/A'; 
+        return 'N/A';
     }
     const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0'); 
+    const month = String(date.getMonth() + 1).padStart(2, '0');
     const year = date.getFullYear();
     const hours = String(date.getHours()).padStart(2, '0');
     const minutes = String(date.getMinutes()).padStart(2, '0');
@@ -16,17 +17,17 @@ function formatDate(date) {
 
 function formatDateDMY(date) {
     if (!date) {
-        return 'N/A'; 
+        return 'N/A';
     }
     const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0'); 
+    const month = String(date.getMonth() + 1).padStart(2, '0');
     const year = date.getFullYear();
     return `${day}-${month}-${year}`;
 }
 
 function formatDateHHmmSS(date) {
     if (!date) {
-        return 'N/A'; 
+        return 'N/A';
     }
     const hours = String(date.getHours()).padStart(2, '0');
     const minutes = String(date.getMinutes()).padStart(2, '0');
@@ -44,13 +45,20 @@ const useDebounce = (callback, delay) => {
     }
 }
 
+function isVietnamesePhoneNumber(number) {
+    return /(03|05|07|08|09|01[2689])+([0-9]{8})\b/.test(number);
+}
+
+
+
+
 async function RefreshToken(refreshToken) {
     try {
         const response = await fetch(process.env.REACT_APP_BASEURL + `authenticed/api/user/refresh-token`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": "Bearer "+refreshToken
+                "Authorization": "Bearer " + refreshToken
             },
             body: JSON.stringify({
                 jwtTokenOld: refreshToken
@@ -81,19 +89,34 @@ async function getToken() {
         const timeToken = jwtDecode(tokenObject.token).exp
         const timeTokenRefresh = jwtDecode(tokenObject.refreshToken).exp
 
-        if (timeToken*1000 > currentTimePlus) {
+        if (timeToken * 1000 > currentTimePlus) {
             return tokenObject.token
         }
-        if (timeTokenRefresh*1000 > currentTimePlus) {
+        if (timeTokenRefresh * 1000 > currentTimePlus) {
             RefreshToken(tokenObject.refreshToken)
             return tokenObject.refreshToken
         }
         document.cookie = `tokens=; expires=${new Date(0).toUTCString}; path=/`;
         localStorage.removeItem("user")
-    }else{
+    } else {
         localStorage.removeItem("user")
         window.location.href = '/register'
     }
 }
-export { formatDate, formatDateDMY, formatDateHHmmSS, getToken, useDebounce };
+
+function encryptString(plaintext, secretKey) {
+    return CryptoJS.AES.encrypt(plaintext, secretKey).toString();
+}
+
+function decryptString(ciphertext, secretKey) {
+    const bytes = CryptoJS.AES.decrypt(ciphertext, secretKey);
+    return bytes.toString(CryptoJS.enc.Utf8);
+}
+
+function compareString(plaintext, hashedValue, secretKey) {
+    const decryptedValue = decryptString(hashedValue, secretKey);
+    return plaintext === decryptedValue;
+}
+
+export { compareString, encryptString, formatDate, formatDateDMY, formatDateHHmmSS, getToken, isVietnamesePhoneNumber, useDebounce };
 

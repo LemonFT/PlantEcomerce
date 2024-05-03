@@ -20,7 +20,6 @@ public class ProductRep {
         return jdbcTemplate.query(sql, BeanPropertyRowMapper.newInstance(Product.class));
     }
 
-    // cart
     @SuppressWarnings("deprecation")
     public Product findProduct(int product_id) {
         String sql = "SELECT * FROM product where id = ? and deleted = false";

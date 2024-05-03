@@ -1,4 +1,4 @@
-import { getToken } from "../Global";
+import { getToken } from '../Global';
 
 const getAllRole = async () => {
     const token = await getToken()
@@ -19,4 +19,39 @@ const getAllRole = async () => {
     return null
 }
 
-export { getAllRole };
+const saveRole = async (data) => {
+    const token = await getToken()
+    try {
+        const response = await fetch(process.env.REACT_APP_BASEURL + `authenticed/api/role`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer '+token
+            },
+            body: JSON.stringify(data)
+        })
+        return (await response).status === 200
+    } catch (error) {
+        console.log(error)
+    }
+    return false
+}
+
+const updateNameRole = async (data) => {
+    const token = await getToken()
+    try {
+        const response = await fetch(process.env.REACT_APP_BASEURL + `authenticed/api/role`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer '+token
+            },
+            body: JSON.stringify(data)
+        })
+        return (await response).status === 200
+    } catch (error) {
+        console.log(error)
+    }
+    return false
+}
+export { getAllRole, saveRole, updateNameRole };

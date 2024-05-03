@@ -250,7 +250,7 @@ function UpdateProduct() {
                                         <td></td>
                                         <td></td>
                                         <td></td>
-                                        <td>Không có</td>
+                                        <td>NO DATA</td>
                                         <td></td>
                                         <td></td>
                                         <td></td>

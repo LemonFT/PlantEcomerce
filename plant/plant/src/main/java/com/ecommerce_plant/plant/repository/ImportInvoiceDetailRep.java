@@ -9,6 +9,9 @@ import org.springframework.stereotype.Repository;
 
 import com.ecommerce_plant.plant.model.ImportInvoiceDetail;
 
+/**
+ * @author lemonftdev
+ */
 @Repository
 public class ImportInvoiceDetailRep {
     @Autowired

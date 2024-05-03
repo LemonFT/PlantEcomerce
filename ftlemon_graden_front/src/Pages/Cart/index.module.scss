@@ -11,6 +11,7 @@
         font-size: 60px;
         color: transparent;
         background-clip: text;
+        cursor: pointer;
         -webkit-background-clip: text;
         background-size: cover;
         background-image: url("../../Images/1.png");
@@ -153,7 +154,8 @@
                         text-align: center;
                     }
                 }
-                .plus, .minus{
+                .plus,
+                .minus {
                     cursor: pointer;
                     user-select: none;
                 }
@@ -168,7 +170,7 @@
                 width: 200px;
                 padding: 0px 20px;
                 text-transform: uppercase;
-                span{
+                span {
                     user-select: none;
                 }
             }
@@ -311,7 +313,7 @@
                         object-fit: cover;
                     }
                 }
-                .form-information{
+                .form-information {
                     position: relative;
                     display: flex;
                     justify-content: flex-start;
@@ -323,8 +325,8 @@
                     padding: 50px 70px;
                     border-radius: 10px;
                     background-color: lightblue;
-                    
-                    .active-auto-contact{
+
+                    .active-auto-contact {
                         position: absolute;
                         right: 2%;
                         top: 2%;
@@ -332,70 +334,97 @@
                         border-radius: 5px;
                         cursor: pointer;
                         color: red;
-                        border: .2px solid gray;
-                        svg{
+                        border: 0.2px solid gray;
+                        svg {
                             color: red;
                         }
-
                     }
-                    .title-if{
+                    .title-if {
                         font-size: 20px;
-                        font-family: 'Courier New', Courier, monospace;
+                        font-family: "Courier New", Courier, monospace;
                     }
-                    .box-input{
+                    .box-input {
                         position: relative;
-                        label{
+                        label {
                             position: absolute;
                             top: 50%;
                             left: 20px;
                             transform: translateY(-50%);
                             font-size: 12px;
                             font-weight: bold;
-                            transition: all .2s;
+                            transition: all 0.2s;
                             padding: 5px 10px;
                             pointer-events: none;
                         }
-                        input{
+                        input {
                             width: 30vw;
                             height: 40px;
-                            border: .5px solid gray;
+                            border: 0.5px solid gray;
                             border-radius: 5px;
                             padding: 3px 10px;
                             background-color: transparent;
                             outline: none;
                         }
-                        input:focus + label, input:not(:placeholder-shown) + label{
+                        input:focus + label,
+                        input:not(:placeholder-shown) + label {
                             top: 0px;
                             transform: translateY(-50%);
                             background-color: lightblue;
                         }
                     }
-                    .total-pay{
+                    .total-pay {
                         text-transform: uppercase;
                         font-size: 12px;
                         font-weight: bold;
                         color: red;
                     }
-                    .save-contact{
+                    .save-contact {
                         display: flex;
                         justify-content: center;
                         align-items: center;
                         gap: 20px;
-                        button{
+                        .btn_getcode {
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            gap: 5px;
+                            span:nth-child(2){
+                                display: none;
+                            }
+                        }
+                        button {
                             width: 150px;
+                            text-transform: uppercase;
+                            font-size: 10px;
                             height: 38px;
                             border-radius: 5px;
-                            border: .2px solid gray;
-                            &:hover{
+                            border: 0.2px solid gray;
+                            &:hover {
+                                background-color: var(--mainColor);
+                            }
+                            &:active {
                                 background-color: var(--mainColorDark);
                                 color: white;
                             }
                         }
+                        @keyframes loading {
+                            0% {
+                                transform: rotate(0deg);
+                            }
+                            50% {
+                                transform: rotate(180deg);
+                            }
+                            100% {
+                                transform: rotate(360deg);
+                            }
+                        }
 
+                        svg {
+                            animation: loading 0.7s linear infinite;
+                        }
                     }
-
                 }
-                .total_and_pay{
+                .total_and_pay {
                     .btn-pay {
                         width: 300px;
                         height: 40px;
@@ -450,6 +479,134 @@
                     }
                 }
             }
+        }
+    }
+    .order {
+        width: 100vw;
+        padding: 50px;
+        padding-top: 0px;
+        .header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            margin: 40px 0px;
+            .header_item {
+                width: 170px;
+                text-align: center;
+                cursor: pointer;
+                padding: 5px;
+                border-bottom: 5px solid transparent;
+                transition: all .3s;
+            }
+        }
+        .items {
+            background-color: transparent;
+            min-height: 120vh;
+            .item {
+                padding: 20px;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                margin-bottom: 20px;
+                background-image: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+                position: relative;
+                &:hover{
+                    box-shadow: 0px 0px 3px 3px rgba(0, 0, 0, 0.2);
+                }
+                .order-id {
+                    font-weight: bold;
+                    margin-bottom: 5px;
+                }
+            
+                .order-time {
+                    color: #666;
+                    margin-bottom: 5px;
+                }
+                .order-status {
+                    color: red;
+                }
+            
+                .product-list {
+                    border: .5px solid #666;
+                    padding: 30px;
+                    border-radius: 5px;
+                    margin-bottom: 20px;
+                    margin-top: 10px;
+                    .product {
+                        display: flex;
+                        justify-content: space-between;
+                        margin-bottom: 5px;
+                        font-size: 14px;
+                        gap: 15px;
+            
+                        .product-name {
+                            flex: 1;
+                        }
+            
+                        .product-quantity {
+                            flex: 0 0 auto;
+                        }
+            
+                        .product-voucher {
+                            flex: 0 0 auto;
+                            font-style: italic;
+                        }
+            
+                        .product-price {
+                            flex: 0 0 auto;
+                        }
+                    }
+                }
+            
+                .order-total,
+                .address,
+                .phone-num {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    font-size: 14px;
+                    display: flex;
+                    align-items: center;
+                    span {
+                        margin-right: 5px;
+                    }
+                }
+            
+                .btn-group {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    margin-top: 15px;
+                    button {
+                        margin-right: 10px;
+                        padding: 8px 16px;
+                        border: none;
+                        border-radius: 5px;
+                        cursor: pointer;
+                        transition: background-color 0.3s ease;
+                    }
+            
+                    .cancel-btn {
+                        background-color: #dc3545;
+                        color: #fff;
+            
+                        &:hover {
+                            background-color: #c82333;
+                        }
+                    }
+            
+                    .update-address-btn {
+                        background-color: #007bff;
+                        color: #fff;
+            
+                        &:hover {
+                            background-color: #0056b3;
+                        }
+                    }
+                }
+            }
+            
+            
         }
     }
 }

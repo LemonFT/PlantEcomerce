@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 
+import com.ecommerce_plant.plant.config.EmailProperty;
 import com.ecommerce_plant.plant.model.ContactUser;
 import com.ecommerce_plant.plant.model.User;
 import com.ecommerce_plant.plant.repository.ContactUserRep;
@@ -21,12 +22,15 @@ import io.github.cdimascio.dotenv.Dotenv;
 @Service
 public class UserService {
 
+    private static final int MIN_USERNAME_LENGTH = 6;
+    private static final int MIN_PASSWORD_LENGTH = 8;
+
     @Autowired
     UserRep userRep;
     @Autowired
     ContactUserRep contactUserRep;
-    private static final int MIN_USERNAME_LENGTH = 6;
-    private static final int MIN_PASSWORD_LENGTH = 8;
+    @Autowired
+    IEmailService iEmailService;
 
     public List<User> findAllUser() {
         return userRep.findAllUsers();
@@ -124,7 +128,6 @@ public class UserService {
     }
 
     public String updateAccount(User user) {
-        System.err.println("block is: " + user.isBlock() + "");
         boolean emailRegex = EmailValidator.getInstance().isValid(user.getEmail());
         if (user.getUsername().length() < MIN_USERNAME_LENGTH) {
             return "Username invalid (>=6)!";
@@ -142,6 +145,15 @@ public class UserService {
         return "User doesn't exist, reload page and try again!";
     }
 
+    public String updateRoleAccount(User user) {
+        User userExist = getUser(user.getId());
+        if (userExist != null) {
+            userExist.setRoleId(user.getRoleId());
+            return userRep.updateUser(userExist) ? "Update successful" : "Update Failed, check internet and try again!";
+        }
+        return "User doesn't exist, reload page and try again!";
+    }
+
     public String deleteAccount(int userId) {
         User user = getUser(userId);
         if (user != null) {
@@ -149,5 +161,18 @@ public class UserService {
                     : "Delete account failed, check internet and try again!";
         }
         return "User doesn't exist, reload page and try again!";
+    }
+
+    public String sendVerifiCode(String email) {
+        User similarUser = userRep.findUser(email);
+        if (similarUser == null) {
+            return "";
+        }
+
+        String to = email;
+        String uniqN = EmailProperty.uniqueNumber();
+        String subject = EmailProperty.TITLE_MAIL;
+        String message = EmailProperty.CONTENT_MAIL + uniqN;
+        return !iEmailService.send(to, subject, message).equals("") ? uniqN + "" : "";
     }
 }

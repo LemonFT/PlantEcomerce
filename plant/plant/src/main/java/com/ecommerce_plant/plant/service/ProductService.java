@@ -18,15 +18,15 @@ public class ProductService {
         return productRep.findAllProducts();
     }
 
-    public Product getProduct(int product_id) {
-        return productRep.findProduct(product_id);
+    public Product getProduct(int productId) {
+        return productRep.findProduct(productId);
     }
 
-    public boolean productSoldOut(int product_id) {
-        return !productRep.findProduct(product_id).isDisplay();
+    public boolean productSoldOut(int productId) {
+        return !productRep.findProduct(productId).isDisplay();
     }
 
-    public List<Product> getProductOfPageNum(String search, String min, String max, int[] category_ids, int pageNum,
+    public List<Product> getProductOfPageNum(String search, String min, String max, int[] categoryIds, int pageNum,
             int numPerPage) {
         int skipProductNum = (pageNum - 1) * numPerPage;
         Double minDouble, maxDouble;
@@ -43,7 +43,7 @@ public class ProductService {
             maxDouble = null;
         }
 
-        return productRep.findProductOfPageNum(search, minDouble, maxDouble, category_ids, numPerPage,
+        return productRep.findProductOfPageNum(search, minDouble, maxDouble, categoryIds, numPerPage,
                 skipProductNum);
     }
 

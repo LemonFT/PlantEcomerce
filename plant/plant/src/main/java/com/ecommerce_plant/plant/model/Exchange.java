@@ -5,12 +5,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * @author lemonftdev
+ */
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class Exchange {
     private int id;
-    private String transaction;
-    private int pay_type_id;
+    private String transactionNo;
+    private int payTypeId;
 }

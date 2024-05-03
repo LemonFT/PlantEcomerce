@@ -135,11 +135,26 @@ public class UserApi {
                 : ResponseEntity.badRequest().body(result);
     }
 
+    @PutMapping("authenticed/api/user-role")
+    public ResponseEntity<?> updateRoleAccount(@RequestBody User user) {
+        String result = userService.updateRoleAccount(user);
+        return (result != null && result.equals("Update successful"))
+                ? ResponseEntity.ok().body(result)
+                : ResponseEntity.badRequest().body(result);
+    }
+
     @DeleteMapping("authenticed/api/user/{userId}")
     public ResponseEntity<?> deleteAccount(@PathVariable int userId) {
         String resultDelete = userService.deleteAccount(userId);
         return (resultDelete != null && resultDelete.equals("Delete account successful"))
                 ? ResponseEntity.ok().body(resultDelete)
                 : ResponseEntity.badRequest().body(resultDelete);
+    }
+
+    @PostMapping("authenticed/api/verification-email")
+    public ResponseEntity<?> sendVerificationCodeEmail(@RequestBody User user) {
+        System.err.println(user.getEmail());
+        String code = userService.sendVerifiCode(user.getEmail());
+        return ResponseEntity.ok().body(code);
     }
 }

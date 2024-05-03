@@ -4,16 +4,20 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import styles from "./index.module.scss";
 
 import { BsPen } from "react-icons/bs";
-import { CiTrash } from "react-icons/ci";
+import { CiLocationOn, CiPhone, CiSquareCheck, CiTrash } from "react-icons/ci";
 import { FiMinus, FiPlus } from "react-icons/fi";
 import { IoIosArrowDown } from "react-icons/io";
 import { MdOutlineArrowBackIosNew } from "react-icons/md";
-
+import { RiLoader4Fill } from "react-icons/ri";
+import { SiCashapp } from "react-icons/si";
 
 
 import { Link, useNavigate } from "react-router-dom";
-import Loading from "../../Components/Loading";
+import { errorAlert, successAlert, warningAlert } from "../../Components/Alert";
+import { deleteOrder, getAllOrdersByUserId, paymentOrder, saveOrder, updateExchangeProgressing } from "../../Data/order";
 import { deleteAllProductInCart, deleteProductInCart, getCart } from "../../Data/product";
+import { getVerificationEmailCode } from "../../Data/user";
+import { compareString, encryptString, formatDate, isVietnamesePhoneNumber } from "../../Global";
 import payafter from '../../Images/payment.png';
 import sadIcon from '../../Images/sad.png';
 import vnpay from '../../Images/vnpay.png';
@@ -26,6 +30,7 @@ function Cart() {
     const ipAdress = useRef(null)
     const ipPhone = useRef(null)
     const ipEmailCode = useRef(null)
+    const ipTypePay = useRef(null)
     const privacy = [
         {
             section: "Phương thức thanh toán",
@@ -65,9 +70,38 @@ function Cart() {
     const { user } = useContext(DataContext)
     const [product, setProduct] = useState([])
     const [privacyShow, setPrivacyShow] = useState(false)
-    const [showLoading, setShowLoading] = useState(false)
     const [showFormContact, setShowFormContact] = useState(false)
     const [contactSaved, setContactSaved] = useState(null)
+    const [showCart, setShowCart] = useState(true)
+
+
+
+    useEffect(() => {
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+
+        if (localStorage.getItem("orderId") !== null && urlParams.has('vnp_status')) {
+            const orderId = localStorage.getItem("orderId");
+            if (urlParams.get('vnp_status').toString() === '200') {
+                const transaction_no = urlParams.get('vnp_transaction_no');
+                successAlert("Transaction with VNPay successful")
+                setTimeout(() => {
+                    saveTransactionVnPay(orderId, transaction_no, urlParams);
+                }, 1000);
+            } else {
+                errorAlert("Transaction failed, please try again later")
+                setTimeout(() => {
+                    handleDeleteOrder(orderId);
+                }, 1000);
+            }
+        } else if (localStorage.getItem("orderId") && !urlParams.has('vnp_status')) {
+            errorAlert("Transaction failed, please try again later")
+            setTimeout(() => {
+                handleDeleteOrder(localStorage.getItem("orderId"));
+            }, 1000);
+        }
+    }, []);
+
 
     useEffect(() => {
         const fetchCart = async () => {
@@ -91,6 +125,32 @@ function Cart() {
         }
     }, [contactSaved])
 
+    const saveTransactionVnPay = async (orderId, transaction_no, urlParams) => {
+        const data = {
+            orderId: orderId,
+            exchange: {
+                transactionNo: transaction_no,
+                payTypeId: 2
+            }
+        }
+        const resultUpdateExchangeProgressing = await updateExchangeProgressing(data)
+        if (resultUpdateExchangeProgressing) {
+            urlParams.delete('vnp_status');
+            urlParams.delete('vnp_transaction_no')
+            handleRemoveAllProduct(user?.id)
+            localStorage.removeItem("orderId")
+            const newUrl = window.location.pathname + urlParams.toString();
+            window.history.pushState({}, '', newUrl);
+        }
+    }
+
+    const handleDeleteOrder = async (orderId) => {
+        const resultDeleteOrder = await deleteOrder(orderId)
+        if (resultDeleteOrder) {
+            localStorage.removeItem("orderId")
+        }
+    }
+
     const findThenUpdateNumber = (id, number) => {
         const newProduct = product.map((item) => {
             if (item.product.id === id) {
@@ -100,6 +160,7 @@ function Cart() {
         })
         setProduct(newProduct)
     }
+
 
     const getTotalPay = () => {
         let total_pay = 0;
@@ -111,18 +172,92 @@ function Cart() {
     }
 
     const handleRemoveAllProduct = async (user_id) => {
-        setShowLoading(true)
         await deleteAllProductInCart(user_id)
         setProduct([])
-        const timeout = setTimeout(() => {
-            setShowLoading(false)
-        }, 1000)
-        return () => clearTimeout(timeout)
     }
 
-    const Item = ({ item, number }) => {
+    const payWithVnpay = async () => {
+        const urlPayment = await paymentOrder(getTotalPay());
+        if (urlPayment !== "") {
+            window.location.href = urlPayment
+        } else {
+            errorAlert("Payment order redirection failed, please check your internet connection again.")
+        }
+    }
+
+    const getCode = async () => {
+        document.getElementById('text').style.display = 'none'
+        document.getElementById('icon_loading').style.display = 'block'
+        if (product.length === 0 || getTotalPay() === 0) {
+            warningAlert("No products available yet!")
+            return
+        }
+        const code = await getVerificationEmailCode(user?.email)
+        localStorage.setItem('verificode', JSON.stringify(encryptString(code, process.env.REACT_APP_SECRETKEY)));
+        document.getElementById('icon_loading').style.display = 'none'
+        document.getElementById('text').style.display = 'block'
+    }
+
+    const savePayment = async () => {
+        const addressStr = ipAdress.current.value
+        const phoneStr = ipPhone.current.value
+        const emailCodeStr = ipEmailCode.current.value
+        const ipTypePayCheck = ipTypePay.current.checked ? 2 : 1
+        if (product.length === 0 || getTotalPay() === 0) {
+            warningAlert("No products available yet!")
+            return
+        }
+        if (addressStr === "" || phoneStr === "" || emailCodeStr === "") {
+            warningAlert("Check contact information and try again later!")
+            return
+        }
+        if (!isVietnamesePhoneNumber(phoneStr)) {
+            warningAlert("Phone number invalid!")
+            return
+        }
+        if (!JSON.parse(localStorage.getItem('verificode')) || !compareString(emailCodeStr, JSON.parse(localStorage.getItem('verificode')), process.env.REACT_APP_SECRETKEY)) {
+            warningAlert("Verification Email code failed!")
+            return
+        }
+
+
+        const data = {
+            order: {
+                userReceiveId: user?.id,
+                address: addressStr,
+                phoneNumber: phoneStr,
+                totalPay: getTotalPay(),
+                payTypeId: ipTypePayCheck
+            },
+            orderItems: product.map((item) => {
+                return {
+                    productId: item.product.id,
+                    number: item.number,
+                    price: item.product.price,
+                    voucher: item.product.voucher
+                }
+            })
+        }
+        const resultSaveOrder = await saveOrder(data)
+        if (resultSaveOrder === "0") {
+            errorAlert("I sincerely apologize, the product has expired!")
+        } else {
+            localStorage.removeItem('verificode')
+            localStorage.setItem('orderId', resultSaveOrder)
+            if (ipTypePayCheck === 2) {
+                payWithVnpay()
+            } else {
+                localStorage.removeItem('verificode')
+                handleRemoveAllProduct(user?.id)
+                successAlert("Order placed successfully")
+            }
+        }
+    }
+
+    const ItemCart = ({ item, number }) => {
         const [removeItem, setRemoveItem] = useState(false);
         const inputNumberProduct = useRef(null);
+
         const handleRemoveProduct = (user_id, product_id) => {
             const deleteProduct = async () => {
                 const result = await deleteProductInCart(user_id, product_id)
@@ -205,111 +340,257 @@ function Cart() {
         </>
     }
 
+    const Cart = () => {
+        return <>
+            <div className={cx('back-shopping')}>
+                <Link to={"/products"}>
+                    <span><MdOutlineArrowBackIosNew style={styleIcon} /></span>
+                    <span>Shopping Continue</span>
+                </Link>
+            </div>
+            <div className={cx('remove_all')}>
+                <button onClick={() => handleRemoveAllProduct(user?.id)}>Xóa tất cả</button>
+            </div>
+            <div className={cx('products')}>
+                {
+                    product?.map((item, index) => {
+                        return <ItemCart key={index} item={item?.product} number={item?.number} />
+                    })
+                }
+                {product.length === 0 && (
+                    <Link to={"/products"}><button className={cx('backshopping')}>Back Shopping</button></Link>
+                )}
+            </div>
+            <div className={cx('pay')}>
+                <div className={cx('typepay_privacy')}>
+                    <div className={cx('typepay_pay')}>
+                        <div className={cx('typepay')}>
+                            <div className={cx('payafter')}>
+                                <input type="radio" name="typepay" id="payafter" value={"Thanh toán sau khi nhận hàng"} />
+                                <label htmlFor="payafter" >Thanh toán sau khi nhận hàng</label>
+                                <span htmlFor="payafter"><img src={payafter} alt="" /></span>
+                            </div>
 
-    return (
-        <>
-            {showLoading && <Loading />}
-            <div className={cx('cart')}>
-                <h2 className={cx('title')}>Cart</h2>
+                            <div className={cx('vnpay')}>
+                                <input ref={ipTypePay} type="radio" name="typepay" id="vnpay" value={"Thanh toán qua VNPay"} defaultChecked={true} />
+                                <label htmlFor="vnpay">Thanh toán qua VNPay</label>
+                                <span htmlFor="vnpay"><img className={cx('vnpayimg')} src={vnpay} alt="" /></span>
+                            </div>
+                        </div>
+                        <div className={cx('form-information')}>
+                            {showFormContact && <FormContact functionCallBack={(contact) => {
+                                setContactSaved(contact)
+                            }} />}
+                            <span className={cx('active-auto-contact')} onClick={() => {
+                                setShowFormContact(prev => !prev)
+                            }}>
+                                <BsPen style={styleIcon} />
+                            </span>
+                            <div className={cx('title-if')}>
+                                Thông tin người đặt hàng
+                            </div>
+                            <div className={cx('box-input')}>
+                                <input id="ip-address" ref={ipAdress} />
+                                <label htmlFor="ip-address">Address</label>
+                            </div>
+                            <div className={cx('box-input')}>
+                                <input id="ip-phoneNum" ref={ipPhone} />
+                                <label htmlFor="ip-phoneNum">Phone number</label>
+                            </div>
+                            <div className={cx('box-input')}>
+                                <input id="ip-emailCode" ref={ipEmailCode} />
+                                <label htmlFor="ip-emailCode">Verification email</label>
+                            </div>
+                            <div className={cx('total-pay')}>
+                                <span>Total payment: {getTotalPay()} VNĐ</span>
+                            </div>
+                            <div className={cx('save-contact')}>
+                                <button className={cx('btn_getcode')} onClick={() => { getCode() }}>
+                                    <span id="text" >Get Verification Email</span>
+                                    <span id="icon_loading">
+                                        <RiLoader4Fill style={styleIcon} />
+                                    </span>
+                                </button>
+                                <button>Save contact</button>
+                            </div>
+                        </div>
+                        <div className={cx('total_and_pay')}>
+                            <button className={cx('btn-pay')} onClick={() => savePayment()}>
+                                Thanh toán
+                            </button>
+                        </div>
+                    </div>
+                    <div className={cx('privacy')}>
+                        <div className={cx('privacy-title')}>
+                            <span onClick={() => {
+                                setPrivacyShow(!privacyShow)
+                            }}>
+                                Xem điều khoản thanh toán
+                            </span>
+                            <span onClick={() => {
+                                setPrivacyShow(!privacyShow)
+                            }}><IoIosArrowDown style={styleIcon} /></span>
+                        </div>
+                        <div className={cx('listPrivacy')} style={privacyShow ? { display: 'block' } : { display: 'none' }}>
+                            {
+                                privacy?.map((item) => (
+                                    <div key={item.section}>
+                                        <span className={cx('sub-title-privacy')}>{item.section}</span><br />
+                                        {item.content?.map((contentItem) => (
+                                            <p key={contentItem}>-{contentItem}</p>
+                                        ))}
+                                    </div>
+                                ))
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </>
+    }
+
+    const ItemOrder = ({ item, index }) => {
+
+        const getTotalPayOrder = () => {
+            return item?.orderItemProducts?.reduce((total, item) => {
+                if (item && typeof item === 'object') {
+                    const { number, voucher, price } = item;
+                    if (typeof number === 'number' && typeof voucher === 'number' && typeof price === 'number') {
+                        total += number * (1 - voucher) * price;
+                    }
+                }
+                return total;
+            }, 0);
+        }
+
+        const cancelOrder = () => {
+
+        }
+
+        const updateContact = () => {
+
+        }
+
+        return (
+            <div className={cx('item')} key={index}>
+                <div className={cx('order-id')}>{item?.order?.code}</div>
+                <div className={cx('order-time')}>{formatDate(new Date(item?.order?.initTime))}</div>
+                {item.progressingOrder.statusOrder === 5 && <div className={cx('order-status')}>There was a problem with the store, so your order was canceled, we will contact you as soon as possible</div>}
+                <div className={cx('product-list')}>
+                    {
+                        item?.orderItemProducts?.map((orderItem) => {
+                            return <>
+                                <div className={cx('product')}>
+                                    <span className={cx('product-name')}>{orderItem?.productName}</span>
+                                    <span className={cx('product-quantity')}>x{orderItem?.number}</span>
+                                    <span className={cx('product-voucher')}>{orderItem?.voucher !== 0 ? ("-" + orderItem?.voucher * 100 + "%") : "-0%"}</span>
+                                    <span className={cx('product-price')}>Total: {(orderItem?.number * (1 - orderItem?.voucher) * orderItem?.price)} VND</span>
+                                </div>
+                            </>
+                        })
+                    }
+                </div>
+                <div className={cx('order-total')}>
+                    <span><SiCashapp style={styleIcon} /></span>
+                    Total Payment: {getTotalPayOrder()} VND</div>
+                <div className={cx('order-total')}>
+                    <span><CiSquareCheck style={styleIcon} /></span>
+                    {item?.progressingOrder?.exchangeId !== null ? "Paid" : "Unpaid"}
+                </div>
+                <div className={cx('address')}>
+                    <span><CiLocationOn style={styleIcon} /></span>
+                    Address: {item?.order?.address}</div>
+                <div className={cx('phone-num')}>
+                    <span><CiPhone style={styleIcon} /></span>
+                    Phone number: {item?.order?.phoneNumber}</div>
+                {
+                    item?.progressingOrder?.statusOrder === 0 &&
+                    <div className={cx('btn-group')} >
+                        <button className={cx('cancel-btn')} onAbort={() => {
+                            cancelOrder()
+                        }}>Cancel Order</button>
+                        <button className={cx('update-address-btn')} onClick={() => {
+                            updateContact()
+                        }}>Update Contact</button>
+                    </div>
+                }
+            </div>
+        );
+    };
+
+    const Order = () => {
+        const [orders, setOrders] = useState([])
+        const [ordersRender, setOrdersRender] = useState([])
+        const [headerItem, setHeaderItem] = useState(1)
+
+        const fetchOrder = async () => {
+            const ords = await getAllOrdersByUserId(user?.id)
+            if (ords !== null) {
+                setOrders(ords)
+            }
+        }
+
+        useEffect(() => {
+            fetchOrder()
+        }, [])
+
+        useEffect(() => {
+            if (!orders) return;
+            const filteredOrders = orders.filter(item => {
+                if(headerItem === 5){
+                    return item?.progressingOrder?.statusOrder === 4 || item?.progressingOrder?.statusOrder === 5
+                }
+                return  (item?.progressingOrder?.statusOrder) === (headerItem - 1)
+            });
+            setOrdersRender(filteredOrders);
+        }, [orders, headerItem]);
+        return <>
+            <div className={cx('order')}>
                 <div className={cx('back-shopping')}>
                     <Link to={"/products"}>
                         <span><MdOutlineArrowBackIosNew style={styleIcon} /></span>
                         <span>Shopping Continue</span>
                     </Link>
                 </div>
-                <div className={cx('remove_all')}>
-                    <button onClick={() => handleRemoveAllProduct(user?.id)}>Xóa tất cả</button>
-                </div>
-                <div className={cx('products')}>
-                    {
-                        product?.map((item, index) => {
-                            return <Item key={index} item={item?.product} number={item?.number} />
-                        })
-                    }
-                    {product.length === 0 && (
-                        <Link to={"/products"}><button className={cx('backshopping')}>Back Shopping</button></Link>
-                    )}
-                </div>
-                <div className={cx('pay')}>
-                    <div className={cx('typepay_privacy')}>
-                        <div className={cx('typepay_pay')}>
-                            <div className={cx('typepay')}>
-                                <div className={cx('payafter')}>
-                                    <input type="radio" name="typepay" id="payafter" value={"Thanh toán sau khi nhận hàng"} />
-                                    <label htmlFor="payafter" >Thanh toán sau khi nhận hàng</label>
-                                    <span htmlFor="payafter"><img src={payafter} alt="" /></span>
-                                </div>
-
-                                <div className={cx('vnpay')}>
-                                    <input type="radio" name="typepay" id="vnpay" value={"Thanh toán qua VNPay"} />
-                                    <label htmlFor="vnpay">Thanh toán qua VNPay</label>
-                                    <span htmlFor="vnpay"><img className={cx('vnpayimg')} src={vnpay} alt="" /></span>
-                                </div>
-                            </div>
-                            <div className={cx('form-information')}>
-                                {showFormContact && <FormContact functionCallBack={(contact) => {
-                                    setContactSaved(contact)
-                                }} />}
-                                <span className={cx('active-auto-contact')} onClick={() => {
-                                    setShowFormContact(prev => !prev)
-                                }}>
-                                    <BsPen style={styleIcon} />
-                                </span>
-                                <div className={cx('title-if')}>
-                                    Thông tin người đặt hàng
-                                </div>
-                                <div className={cx('box-input')}>
-                                    <input id="ip-address" ref={ipAdress} />
-                                    <label htmlFor="ip-address">Address</label>
-                                </div>
-                                <div className={cx('box-input')}>
-                                    <input id="ip-phoneNum" ref={ipPhone} />
-                                    <label htmlFor="ip-phoneNum">Phone number</label>
-                                </div>
-                                <div className={cx('box-input')}>
-                                    <input id="ip-emailCode" ref={ipEmailCode} />
-                                    <label htmlFor="ip-emailCode">Verification email</label>
-                                </div>
-                                <div className={cx('total-pay')}>
-                                    <span>Total payment: {getTotalPay()} VNĐ</span>
-                                </div>
-                                <div className={cx('save-contact')}>
-                                    <button>Get code</button>
-                                    <button>Save contact</button>
-                                </div>
-                            </div>
-                            <div className={cx('total_and_pay')}>
-                                <button className={cx('btn-pay')}>
-                                    Thanh toán
-                                </button>
-                            </div>
-                        </div>
-                        <div className={cx('privacy')}>
-                            <div className={cx('privacy-title')}>
-                                <span onClick={() => {
-                                    setPrivacyShow(!privacyShow)
-                                }}>
-                                    Xem điều khoản thanh toán
-                                </span>
-                                <span onClick={() => {
-                                    setPrivacyShow(!privacyShow)
-                                }}><IoIosArrowDown style={styleIcon} /></span>
-                            </div>
-                            <div className={cx('listPrivacy')} style={privacyShow ? { display: 'block' } : { display: 'none' }}>
-                                {
-                                    privacy?.map((item) => (
-                                        <div key={item.section}>
-                                            <span className={cx('sub-title-privacy')}>{item.section}</span><br />
-                                            {item.content?.map((contentItem) => (
-                                                <p key={contentItem}>-{contentItem}</p>
-                                            ))}
-                                        </div>
-                                    ))
-                                }
-                            </div>
-                        </div>
+                <div className={cx('header')}>
+                    <div className={cx('header_item')} style={headerItem === 1 ? { borderBottom: '5px solid green' } : {}}
+                        onClick={() => setHeaderItem(1)}>Ordered{headerItem === 1 && "(" + ordersRender.length + ")"}
+                    </div>
+                    <div className={cx('header_item')} style={headerItem === 2 ? { borderBottom: '5px solid green' } : {}}
+                        onClick={() => setHeaderItem(2)}>Being packaged{headerItem === 2 && "(" + ordersRender.length + ")"}
+                    </div>
+                    <div className={cx('header_item')} style={headerItem === 3 ? { borderBottom: '5px solid green' } : {}}
+                        onClick={() => setHeaderItem(3)}>Being transported{headerItem === 3 && "(" + ordersRender.length + ")"}
+                    </div>
+                    <div className={cx('header_item')} style={headerItem === 4 ? { borderBottom: '5px solid green' } : {}}
+                        onClick={() => setHeaderItem(4)}>Complete{headerItem === 4 && "(" + ordersRender.length + ")"}
+                    </div>
+                    <div className={cx('header_item')} style={headerItem === 5 ? { borderBottom: '5px solid green' } : {}}
+                        onClick={() => setHeaderItem(5)}>Cancel{headerItem === 5 && "(" + ordersRender.length + ")"}
                     </div>
                 </div>
+                <div className={cx('items')}>
+                    {
+                        ordersRender && ordersRender?.map((item, index) => {
+                            return <ItemOrder item={item} index={index} />
+                        })
+                    }
+                </div>
+            </div>
+        </>
+    }
+
+    return (
+        <>
+            <div className={cx('cart')}>
+                <h2 className={cx('title')}>
+                    <span onClick={() => setShowCart(true)} style={showCart ? { color: 'black', textShadow: '2px 2px 2px #000' } : {}}>Cart</span>
+                    <span>/</span>
+                    <span onClick={() => setShowCart(false)} style={!showCart ? { color: 'black', textShadow: '2px 2px 2px #000' } : {}}>Order</span>
+                </h2>
+                {showCart && <Cart />}
+                {!showCart && <Order />}
+
             </div>
         </>
     );

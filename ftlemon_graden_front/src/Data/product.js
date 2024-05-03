@@ -100,11 +100,9 @@ const addProductToCart = async (user_id, product_id, number) => {
             return 1
         } else if (status === 404) {
             return -1
-        } else {
-            return 0;
         }
     } catch (error) {
-        return 0;
+        console.error(error)
     }
 }
 

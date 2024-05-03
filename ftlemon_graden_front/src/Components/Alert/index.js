@@ -54,5 +54,18 @@ const processAlert = (title, content) => {
       });
 }
 
-export { errorAlert, processAlert, successAlert, warningAlert };
+const submitAlert = (success, fucn) => {
+  Swal.fire({
+    title: "PAY ORDER RESUL",
+    text: success ? "Transaction with VNPay successful" : "Transaction failed, please try again later",
+    icon: success ? "success" : "error",
+    allowOutsideClick: false 
+  }).then((result) => {
+    if (result.isConfirmed) {
+      fucn()
+    }
+  });
+}
+
+export { errorAlert, processAlert, submitAlert, successAlert, warningAlert };
 
