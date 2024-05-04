@@ -5,37 +5,43 @@ import makeAnimated from "react-select/animated";
 import styles from "./index.module.scss";
 
 const animatedComponents = makeAnimated();
-function Combobox({options, placeholder, isMulti, closeMenuOnSelect, returnValue, width}) {
+function Combobox({ options, placeholder, isMulti, closeMenuOnSelect, returnValue, width, notrenderNull }) {
     const cx = classNames.bind(styles)
     const [value, setValue] = useState()
+
 
     useEffect(() => {
         returnValue(value)
     }, [returnValue, value])
 
 
+    useEffect(() => {
+        if(!notrenderNull){
+            setValue()
+        }
+    }, [notrenderNull, options])
 
 
-    return ( <>
-        <div className={cx('box-select')} style={width ? { width: `${width}px`, height: '38px' } : {width: '300px', height: '38px'}}>
+    return (<>
+        <div className={cx('box-select')} style={width ? { width: `${width}px`, height: '38px' } : { width: '300px', height: '38px' }}>
             <Select
-                    isSearchable
-                    className={cx('select')}
-                    options={options}
-                    closeMenuOnSelect={closeMenuOnSelect}
-                    components={animatedComponents}
-                    isMulti={isMulti}
-                    placeholder={placeholder}
-                    onChange={(selects) => {
-                        if (isMulti) {
-                            setValue(selects.map(option => option.value));
-                        } else {
-                            setValue(selects ? selects.value : ''); 
-                        }
-                    }}
+                isSearchable
+                className={cx('select')}
+                options={options}
+                closeMenuOnSelect={closeMenuOnSelect}
+                components={animatedComponents}
+                isMulti={isMulti}
+                placeholder={placeholder}
+                onChange={(selects) => {
+                    if (isMulti) {
+                        setValue(selects.map(option => option.value));
+                    } else {
+                        setValue(selects ? selects.value : '');
+                    }
+                }}
             />
         </div>
-    </> );
+    </>);
 }
 
 export default Combobox;

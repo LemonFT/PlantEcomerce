@@ -143,9 +143,24 @@ const updateStatusOrders = async (orderIds, statusOrder) => {
     }
     return false
 }
+const getRevenueFromSuccess = async (year) => {
+    const token = await getToken()
+    try {
+        const response = await fetch(process.env.REACT_APP_BASEURL + `authenticed/api/success-revenue/${year}`, {
+            method: 'GET', 
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer '+token
+            }
+        })
+        return response.json()
+    } catch (error) {
+        console.error(error)
+    }
+    return null
+}
 export {
-    deleteOrder, getAllOrders, getAllOrdersByUserId,
-    paymentOrder, saveOrder, updateExchangeProgressing,
+    deleteOrder, getAllOrders, getAllOrdersByUserId, getRevenueFromSuccess, paymentOrder, saveOrder, updateExchangeProgressing,
     updateStatusOrder, updateStatusOrders
 };
 

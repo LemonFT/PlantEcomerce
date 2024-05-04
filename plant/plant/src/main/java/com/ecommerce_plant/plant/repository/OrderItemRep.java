@@ -3,20 +3,27 @@ package com.ecommerce_plant.plant.repository;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import com.ecommerce_plant.plant.mapping.modelmapping.OrderItemProduct;
 import com.ecommerce_plant.plant.model.OrderItem;
+import com.ecommerce_plant.plant.model.Product;
 
 /**
  * @author lemonftdev
  */
 @Repository
+@Transactional(rollbackFor = { Exception.class, DataAccessException.class })
 public class OrderItemRep {
     @Autowired
     private JdbcTemplate jdbcTemplate;
+    @Autowired
+    private ProductRep productRep;
 
     public List<OrderItem> findAllOrderItems() {
         String sql = "SELECT * FROM order_item";
@@ -48,7 +55,17 @@ public class OrderItemRep {
     }
 
     public boolean deleteOrderItemByOrderId(int orderId) {
-        String sql = "DELETE FROM order_item WHERE order_id = ?";
-        return jdbcTemplate.update(sql, orderId) > 0;
+        try {
+            List<OrderItemProduct> orderItems = findAllOrderItems(orderId);
+            for (OrderItemProduct orderItem : orderItems) {
+                Product product = productRep.findProduct(orderItem.getProductId());
+                productRep.updateProductNumber(product.getId(), product.getAmount() + orderItem.getNumber());
+            }
+            String sql = "DELETE FROM order_item WHERE order_id = ?";
+            return jdbcTemplate.update(sql, orderId) > 0;
+        } catch (Exception e) {
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+        }
+        return false;
     }
 }

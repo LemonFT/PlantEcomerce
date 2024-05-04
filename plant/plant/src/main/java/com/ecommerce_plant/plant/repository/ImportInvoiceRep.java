@@ -15,6 +15,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
+import com.ecommerce_plant.plant.mapping.modelmapping.CostOfGoodsSoldByYear;
 import com.ecommerce_plant.plant.model.ImportInvoice;
 import com.ecommerce_plant.plant.model.ImportInvoiceDetail;
 
@@ -33,6 +34,37 @@ public class ImportInvoiceRep {
     public List<ImportInvoice> findAllImportInvoices() {
         String sql = "SELECT * FROM import_invoice";
         return jdbcTemplate.query(sql, BeanPropertyRowMapper.newInstance(ImportInvoice.class));
+    }
+
+    @SuppressWarnings("deprecation")
+    public List<CostOfGoodsSoldByYear> findAllCostByYear(int year) {
+        System.err.println(year);
+        try {
+            String sql = "SELECT month(init_time) AS month, sum(total_pay) AS cost " +
+                    " from (plant_ecommerce_web.import_invoice) " +
+                    " where year(init_time) = ? " +
+                    " group by month(init_time), year(init_time) " +
+                    " order by month(init_time) asc ";
+            return jdbcTemplate.query(sql, new Object[] { year },
+                    BeanPropertyRowMapper.newInstance(CostOfGoodsSoldByYear.class));
+        } catch (Exception e) {
+            System.err.println(e);
+        }
+        return null;
+    }
+
+    @SuppressWarnings("deprecation")
+    public Double findCostByYear(int year) {
+        try {
+            String sql = "SELECT COALESCE(SUM(total_pay), 0) AS cost " +
+                    "FROM import_invoice " +
+                    "WHERE YEAR(init_time) = ? ";
+            return jdbcTemplate.queryForObject(sql, new Object[] { year },
+                    Double.class);
+        } catch (DataAccessException e) {
+            System.err.println("Error occurred while executing SQL query " + e);
+            throw e;
+        }
     }
 
     public boolean insertImportInvoice(ImportInvoice importInvoice) {

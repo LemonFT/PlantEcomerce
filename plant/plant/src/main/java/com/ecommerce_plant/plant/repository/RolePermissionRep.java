@@ -3,6 +3,7 @@ package com.ecommerce_plant.plant.repository;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -16,7 +17,7 @@ import com.ecommerce_plant.plant.model.RolePermission;
  * @author lemonftdev
  */
 @Repository
-@Transactional
+@Transactional(rollbackFor = { Exception.class, DataAccessException.class })
 public class RolePermissionRep {
     @Autowired
     private JdbcTemplate jdbcTemplate;

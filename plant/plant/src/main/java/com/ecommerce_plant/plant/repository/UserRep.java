@@ -86,6 +86,11 @@ public class UserRep {
                 user.getId()) > 0;
     }
 
+    public boolean updatePwd(User user) {
+        String sql = "UPDATE user SET password = ? WHERE email = ?";
+        return jdbcTemplate.update(sql, user.getPassword(), user.getEmail()) > 0;
+    }
+
     public boolean deleteUser(int id) {
         try {
             String sql = "UPDATE user SET deleted = 1 WHERE id = ?";
@@ -99,4 +104,8 @@ public class UserRep {
         }
     }
 
+    public int countUsers() {
+        String sql = "SELECT COUNT(id) FROM user";
+        return jdbcTemplate.queryForObject(sql, Integer.class);
+    }
 }

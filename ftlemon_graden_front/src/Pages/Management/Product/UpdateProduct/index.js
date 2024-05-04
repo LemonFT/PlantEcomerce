@@ -1,11 +1,12 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import classNames from "classnames/bind";
 import React, { useContext, useEffect, useRef, useState } from "react";
-import { CiTrash } from "react-icons/ci";
+import { CiEdit, CiTrash } from "react-icons/ci";
+import { GiSaveArrow } from "react-icons/gi";
 import { IoClose } from "react-icons/io5";
-import { MdOutlineSaveAlt } from "react-icons/md";
-import { errorAlert, processAlert, successAlert, warningAlert } from "../../../../Components/Alert";
-import { getAllProduct, updateProduct } from "../../../../Data/product";
+import { RxUpdate } from "react-icons/rx";
+import { errorAlert, processAlert, submitCancelOkAlert, successAlert, warningAlert } from "../../../../Components/Alert";
+import { deleteProduct, getAllProduct, updateProduct } from "../../../../Data/product";
 import { DataContext } from "../../../../Provider/DataProvider";
 import BoxImages from "../../BoxImages";
 import HeaderProduct from "../HeaderProduct";
@@ -23,11 +24,13 @@ function UpdateProduct() {
     const [categoryForm, setCategoryForm] = useState(-1)
     const [updateImages, setUpdateImages] = useState(-1)
     const [keySearch, setKeySearch] = useState("")
+    const [loadHeader, setLoadHeader] = useState(false)
 
 
     const fetchData = async () => {
         const data = await getAllProduct();
         if (data) {
+            setLoadHeader(!loadHeader)
             setProduct(data)
         }
     }
@@ -124,6 +127,7 @@ function UpdateProduct() {
         const amount = useRef(null)
         const voucher = useRef(null)
         const display = useRef(null)
+        const [edit, setEdit] = useState(false)
 
         const handleUpdateProduct = async () => {
             const nameEdt = name.current.value
@@ -166,43 +170,107 @@ function UpdateProduct() {
             }
         }
 
+        const deleteFuc = async (orderId) => {
+            const resultDelete = await deleteProduct(orderId)
+            if (resultDelete) {
+                fetchData()
+                successAlert("Delete successful")
+            } else {
+                errorAlert("Delete failed")
+            }
+        }
+
+        const handleDeleteProduct = (id) => {
+            submitCancelOkAlert(() => deleteFuc(id))
+        }
+
 
         return <>
             <tr>
                 <td>{item?.id}</td>
                 <td>{item?.code}</td>
                 <td>
-                    <input ref={name} defaultValue={item?.name} />
+                    <input ref={name} defaultValue={item?.name} readOnly={!edit} />
                 </td>
                 <td>
-                    <textarea ref={desc} defaultValue={item?.description} />
+                    <textarea ref={desc} defaultValue={item?.description} readOnly={!edit} />
                 </td>
                 <td>
                     <div className={cx('categoty-name')}
-                        onClick={() => setCategoryForm(item?.id)}
+                        style={edit ? { cursor: 'pointer' } : {}}
+                        onClick={() => {
+                            if (edit) {
+                                setCategoryForm(item?.id)
+                            }
+                        }}
                     >
                         {getCategoryName(item?.category_product_id)}
+                        <CiEdit style={styleIcon} />
                     </div>
                 </td>
                 <td>
                     <img src={item?.image || "https://cdn-icons-png.freepik.com/512/100/100662.png"} alt="" />
                     <button
+                        style={edit ? { cursor: 'pointer' } : {}}
                         onClick={() => {
-                            setUpdateImages(item?.id)
+                            if (edit) {
+                                setUpdateImages(item?.id)
+                            }
                         }}
                     >See more images</button>
                 </td>
-                <td><input ref={price} defaultValue={item?.price} /></td>
-                <td><input ref={amount} defaultValue={item?.amount} /></td>
-                <td><input ref={voucher} defaultValue={item?.voucher} /></td>
                 <td>
-                    <input ref={display} type="checkbox" defaultChecked={item?.display} />
+                    <input ref={price} defaultValue={item?.price} readOnly={!edit} />
                 </td>
                 <td>
-                    <MdOutlineSaveAlt style={styleIcon} onClick={() => handleUpdateProduct()} />
+                    <input ref={amount} defaultValue={item?.amount} readOnly={!edit} />
                 </td>
                 <td>
-                    <CiTrash style={styleIcon} />
+                    <input ref={voucher} defaultValue={item?.voucher} readOnly={!edit} />
+                </td>
+                <td>
+                    <input ref={display} type="checkbox" defaultChecked={item?.display} onChange={() => {
+                        if (!edit) {
+                            display.current.checked = !display.current.checked
+                        }
+                    }} />
+                </td>
+                <td>
+                    {!edit ? <div className={cx('button')} onClick={() => {
+                        setEdit(true)
+                    }}>
+                        <span>
+                            Start Update
+                        </span>
+                        <span>
+                            <RxUpdate style={styleIcon} />
+                        </span>
+                    </div> :
+                        <div className={cx('after_start')}>
+                            <div className={cx('button')} onClick={() => {
+                                submitCancelOkAlert(() => { handleUpdateProduct() }, "Update")
+                            }}>
+                                <span>
+                                    Save Update
+                                </span>
+                                <span>
+                                    <GiSaveArrow style={styleIcon} />
+                                </span>
+                            </div>
+                            <div className={cx('button')} onClick={() => {
+                                setEdit(false)
+                            }}>
+                                <span>
+                                    Stop update
+                                </span>
+                                <span>
+                                    <GiSaveArrow style={styleIcon} />
+                                </span>
+                            </div>
+                        </div>}
+                </td>
+                <td>
+                    <CiTrash style={styleIcon} onClick={() => { handleDeleteProduct(item?.id) }} />
                 </td>
             </tr>
         </>
@@ -216,7 +284,7 @@ function UpdateProduct() {
 
         {
             updateImages === -1 && <div className={cx('product')}>
-                <HeaderProduct returnKeySearch={updateKeySearch} />
+                <HeaderProduct returnKeySearch={updateKeySearch} load={loadHeader} />
                 <div className={cx('table')}>
                     {categoryForm !== -1 && <ShowCategoryForm id={categoryForm} funcCallBack={funcCallBack} />}
                     <table>

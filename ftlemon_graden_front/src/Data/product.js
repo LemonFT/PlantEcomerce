@@ -309,8 +309,24 @@ const insertImage = async (product_id, url) => {
     }
 }
 
+const deleteProduct = async (id) => {
+    const token = await getToken()
+    try {
+        const response = await fetch(process.env.REACT_APP_BASEURL + `authenticed/api/product/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer '+token
+            }
+        })
+        return response.status === 200
+    } catch (error) {
+        console.error.log(error)
+    }
+    return false
+}
 export {
-    addProductToCart, deleteAllProductInCart, deleteImage, deleteProductInCart, getAllProduct, getCart, getInfoDetails,
+    addProductToCart, deleteAllProductInCart, deleteImage, deleteProduct, deleteProductInCart, getAllProduct, getCart, getInfoDetails,
     getMaxPriceProduct, getProductCategory, getProducts, insertImage, insertProduct, updateImageProduct, updateProduct
 }
 

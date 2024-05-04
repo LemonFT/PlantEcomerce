@@ -21,8 +21,6 @@ public class ExchangeApi {
 
     @PostMapping("authenticed/api/exchange")
     public ResponseEntity<?> insertExchange(@RequestBody ExchangeModelMap exchangeModelMap) {
-        System.err.println(exchangeModelMap.toString());
-        System.err.println(exchangeModelMap.getExchange().toString());
         boolean resultInsert = exchangeService.insertExchange(exchangeModelMap);
         return resultInsert ? ResponseEntity.ok().body(200) : ResponseEntity.badRequest().body(400);
     }

@@ -112,31 +112,8 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        margin-bottom: 100px;
+        margin-bottom: 30px;
         margin-top: 50px;
-        button {
-            margin-right: 40px;
-            width: 400px;
-            height: 38px;
-            border: 1px solid rgb(149, 14, 14);
-            border-radius: 5px;
-            background-color: white;
-            color: rgb(149, 14, 14);
-            font-size: 13px;
-            font-weight: bold;
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            &:hover {
-                background-color: rgb(149, 14, 14);
-                color: white;
-                border-color: rgb(149, 14, 14);
-            }
-            &:active {
-                transform: translateY(2px);
-                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-            }
-        }
     }
     .products {
         display: flex;
@@ -145,7 +122,8 @@
         gap: 40px;
         flex-wrap: wrap;
         padding: 0px 100px;
-        min-height: 100vh;
+        min-height: 60vh;
+        margin-top: 80px;
         .item {
             position: relative;
             display: flex;

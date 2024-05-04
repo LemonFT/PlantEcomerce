@@ -2,7 +2,7 @@
 import classNames from "classnames/bind";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { CiTrash } from "react-icons/ci";
-import { errorAlert, processAlert, successAlert } from "../../../../Components/Alert";
+import { errorAlert, processAlert, submitCancelOkAlert, successAlert } from "../../../../Components/Alert";
 import Combobox from "../../../../Components/Selected";
 import { saveExport } from "../../../../Data/export";
 import { getAllProduct } from "../../../../Data/product";
@@ -18,7 +18,7 @@ function ExportProduct() {
     const refTotalLoss = useRef(null)
     const [product, setProduct] = useState([])
     const [productsExport, setProductsExport] = useState(localStorage.getItem("productsExport")
-    ? JSON.parse(localStorage.getItem("productsExport")) : [])
+        ? JSON.parse(localStorage.getItem("productsExport")) : [])
     const { user, productCategory } = useContext(DataContext)
     const [productSelectedId, setProductSelectedId] = useState(null)
 
@@ -60,9 +60,11 @@ function ExportProduct() {
     }
 
     const deleteProduct = (id) => {
-        setProductsExport((prev) => {
-            return prev?.filter((item) => item.product?.id !== id);
-        });
+        submitCancelOkAlert(() => {
+            setProductsExport((prev) => {
+                return prev?.filter((item) => item.product?.id !== id);
+            })
+        }, "Delete")
     };
 
 
@@ -93,7 +95,7 @@ function ExportProduct() {
     }
 
     const saveExportInvoice = () => {
-        if(productsExport.length === 0){
+        if (productsExport.length === 0) {
             errorAlert("No data import, choose product and try again!")
             return;
         }
@@ -115,14 +117,14 @@ function ExportProduct() {
                 details: details
             }
             const result = await saveExport(data)
-            if(result){
+            if (result) {
                 successAlert("Insert export invoice successful")
-            }else{
+            } else {
                 errorAlert("Insert export invoice false, reload page and try again")
             }
         }, 1200)
     }
-    
+
 
     const Row = ({ item, index }) => {
         const inputNumberProduct = useRef(null)
@@ -187,8 +189,12 @@ function ExportProduct() {
                                 handleSaveTemporarily()
                             }}>Save temporarily</button>
                             <button className={cx('remove_all')} onClick={() => {
-                                localStorage.removeItem("productsExport")
-                                setProductsExport([])
+                                if (productsExport?.length > 0) {
+                                    submitCancelOkAlert(() => {
+                                        localStorage.removeItem("productsExport")
+                                        setProductsExport([])
+                                    }, "Delete All")
+                                }
                             }}>Remove all</button>
                         </div>
                         <div className={cx('table')}>
@@ -216,7 +222,7 @@ function ExportProduct() {
                     </div>
                 </div>
                 <div className={cx('row_3')}>
-                    <button onClick={() => {saveExportInvoice()}}>Save export invoice</button>
+                    <button onClick={() => { saveExportInvoice() }}>Save export invoice</button>
                 </div>
             </div>
         </div>

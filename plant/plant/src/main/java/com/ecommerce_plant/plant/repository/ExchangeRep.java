@@ -25,8 +25,6 @@ import com.ecommerce_plant.plant.model.Exchange;
 public class ExchangeRep {
     @Autowired
     private JdbcTemplate jdbcTemplate;
-    @Autowired
-    private ProgressingOrderRep progressingOrderRep;
 
     public List<Exchange> findAllExchanges() {
         String sql = "SELECT * FROM exchange";
@@ -44,7 +42,8 @@ public class ExchangeRep {
                 return ps;
             }, keyHolder);
             int exchangeId = keyHolder.getKey().intValue();
-            progressingOrderRep.updateExchangeProgressingOrder(exchangeModelMap.getOrderId(), exchangeId);
+            String sqlProgr = "UPDATE progressing_order SET exchange_id = ? WHERE order_id = ?";
+            jdbcTemplate.update(sqlProgr, exchangeId, exchangeModelMap.getOrderId());
             return true;
         } catch (Exception e) {
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();

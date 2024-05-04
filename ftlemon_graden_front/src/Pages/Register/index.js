@@ -3,7 +3,6 @@ import AOS from 'aos';
 import 'aos/dist/aos.css';
 import className from "classnames/bind";
 import React, { useContext, useEffect, useRef, useState } from "react";
-import { FcGoogle } from "react-icons/fc";
 import { useNavigate } from 'react-router-dom';
 import validator from 'validator';
 import { errorAlert, successAlert, warningAlert } from '../../Components/Alert';
@@ -180,7 +179,7 @@ function Register() {
                             <input ref={pwdRefCf} onChange={(e) => checkPwdCf(e)} type="password" data-aos="zoom-out-right" placeholder="Enter password" spellCheck='false' style={style.pwdCf} />
                         </div>}
                         {!formRegister && <div className={cx('forgot')}>
-                            <span data-aos='zoom-in'>Forgot password? Never mind, click me!</span>
+                            <span data-aos='zoom-in' onClick={()=> {navigate('/forgot')}}>Forgot password? Never mind, click me!</span>
                         </div>}
                     </div>
                     <div className={cx('btn_group')}>
@@ -188,7 +187,6 @@ function Register() {
                             formRegister ? <button  onClick={() => submitRegister()}>Register</button> :
                                 <button  onClick={() => submitSignIn()}>Sign in</button>
                         }
-                        <button ><FcGoogle style={styleIcon} /></button>
                         <button onClick={() => {
                             setFormRegister((!formRegister))
                         }}>{formRegister ? "Sign in, now" : "Register"}</button>

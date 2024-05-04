@@ -18,6 +18,7 @@ import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import com.ecommerce_plant.plant.mapping.modelmapping.OrderModelMap;
 import com.ecommerce_plant.plant.model.Order;
 import com.ecommerce_plant.plant.model.OrderItem;
+import com.ecommerce_plant.plant.model.Product;
 import com.ecommerce_plant.plant.model.ProgressingOrder;
 
 /**
@@ -33,10 +34,19 @@ public class OrderRep {
     private OrderItemRep orderItemRep;
     @Autowired
     private ProgressingOrderRep progressingOrderRep;
+    @Autowired
+    private ProductRep productRep;
 
     public List<Order> findAllOrders() {
         String sql = "SELECT * FROM `order`";
         return jdbcTemplate.query(sql, BeanPropertyRowMapper.newInstance(Order.class));
+    }
+
+    @SuppressWarnings("deprecation")
+    public Order findOrders(int orderId) {
+        String sql = "SELECT * FROM `order` WHERE id = ?";
+        return jdbcTemplate.queryForObject(sql, new Object[] { orderId },
+                BeanPropertyRowMapper.newInstance(Order.class));
     }
 
     @SuppressWarnings("deprecation")
@@ -64,7 +74,15 @@ public class OrderRep {
             }, keyHolder);
             int orderId = keyHolder.getKey().intValue();
             for (OrderItem orderItem : orderModelMap.getOrderItems()) {
+                Product product = productRep.findProduct(orderItem.getProductId());
+                System.err.println(product.getAmount() + "");
+                System.err.println(orderItem.getNumber());
+                if (product.getAmount() < orderItem.getNumber()) {
+                    TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+                    return 0;
+                }
                 orderItem.setOrderId(orderId);
+                productRep.updateProductNumber(product.getId(), product.getAmount() - orderItem.getNumber());
                 orderItemRep.insertOrderItem(orderItem);
             }
             progressingOrderRep.insertProgressingOrder(new ProgressingOrder(orderId, 0, null, null, null));
@@ -86,7 +104,6 @@ public class OrderRep {
     public boolean deleteOrder(int id) {
         try {
             progressingOrderRep.deleteProgressingOrder(id);
-            orderItemRep.deleteOrderItemByOrderId(id);
             orderItemRep.deleteOrderItemByOrderId(id);
             String sql = "DELETE FROM `order` WHERE id = ?";
             jdbcTemplate.update(sql, id);

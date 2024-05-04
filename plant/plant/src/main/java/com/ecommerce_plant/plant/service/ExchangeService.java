@@ -11,8 +11,12 @@ import com.ecommerce_plant.plant.repository.ExchangeRep;
  */
 @Service
 public class ExchangeService {
+    private ExchangeRep exchangeRep;
+
     @Autowired
-    ExchangeRep exchangeRep;
+    public void setExchangeRep(ExchangeRep exchangeRep) {
+        this.exchangeRep = exchangeRep;
+    }
 
     public boolean insertExchange(ExchangeModelMap exChangeModelMap) {
         return exchangeRep.insertExchange(exChangeModelMap);

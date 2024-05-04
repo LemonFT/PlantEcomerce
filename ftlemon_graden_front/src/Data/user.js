@@ -224,13 +224,11 @@ const createAccount = async (data) => {
     return "Check internet and try again!"
 }
 const getVerificationEmailCode = async (email) => {
-    const token = await getToken()
     try {
-        const response = await fetch(process.env.REACT_APP_BASEURL + `authenticed/api/verification-email`, {
+        const response = await fetch(process.env.REACT_APP_BASEURL + `api/verification-email`, {
             method: 'POST', 
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + token
             },
             body: JSON.stringify({
                 email: email
@@ -241,8 +239,24 @@ const getVerificationEmailCode = async (email) => {
         console.error(error)
     }
 }
+
+const updatePwd = async (data) => {
+    try {
+        const response = await fetch(process.env.REACT_APP_BASEURL + `api/user/updatepwd`, {
+            method: 'POST', 
+            headers: {
+                'Content-Type': 'application/json', 
+            },
+            body: JSON.stringify(data)
+        })
+        return response.status === 200
+    } catch (error) {
+        console.log(error)
+    }
+    return false
+}
 export {
     createAccount, deleteAccount, getAllAccounts, getContact, getInfoUser, getVerificationEmailCode, register,
-    saveContact, signIn, updateAccount, updateContact, updateRoleAccount
+    saveContact, signIn, updateAccount, updateContact, updatePwd, updateRoleAccount
 };
 

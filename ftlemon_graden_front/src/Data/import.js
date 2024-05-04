@@ -27,4 +27,22 @@ const saveImport = async (data) => {
     return false
 }
 
-export { saveImport };
+const getCostImport = async (year) => {
+    const token = await getToken()
+    try {
+        const response = await fetch(process.env.REACT_APP_BASEURL + `authenticed/api/import-cost/${year}`, {
+            method: 'GET', 
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer '+token
+            }
+        })
+        return response.json()
+    } catch (error) {
+        console.error(error)
+    }
+    return null
+}
+
+export { getCostImport, saveImport };
+

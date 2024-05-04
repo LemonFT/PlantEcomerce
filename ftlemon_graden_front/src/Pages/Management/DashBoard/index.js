@@ -1,23 +1,81 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { defaults } from "chart.js/auto";
 import classNames from "classnames/bind";
+import { useEffect, useRef, useState } from "react";
 import { Doughnut, Line } from "react-chartjs-2";
 import { BsCashCoin } from "react-icons/bs";
 import { FaUsers } from "react-icons/fa";
 import { GrVisa } from "react-icons/gr";
 import { RiPlantFill } from "react-icons/ri";
+import { getCostImport } from "../../../Data/import";
+import { getRevenueFromSuccess } from "../../../Data/order";
+import { getStatistics } from "../../../Data/statistic";
 import styles from "./index.module.scss";
 function DashBoard() {
     const cx = classNames.bind(styles)
-    const styleIcon = {fontSize: '25px'}
+    const styleIcon = { fontSize: '25px' }
     defaults.maintainAspectRatio = false
     defaults.responsive = true
-
     const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-    const revenueData = [1000, 1500, 2000, 1800, 2200, 2500, 2300, 2100, 1900, 1800, 1700, 1600];
-    const product = [2000, 900, 2000, 1900, 2200, 2800, 1000, 1800, 1900, 2800, 1600, 1900];
+    const [costImportChart, setCostImportChart] = useState([])
+    const [costImport, setCostImport] = useState([])
+    const [revenueChart, setRevenueChart] = useState([])
+    const [revenue, setRevenue] = useState([])
+    const [statistics, setStatistics] = useState(null)
+    const [categoryName, setCategoryName] = useState([])
+    const [categoryData, setCategoryData] = useState([])
+    const year = new Date().getFullYear()
+    const dateToRef = useRef(null)
+    const dateFromRef = useRef(null)
 
-    const category = ['Mini', 'Big size', 'House']
-    const data = [200, 500, 900]
+    useEffect(() => {
+        fetchDataProduct()
+        fetchDataRevenueSuccess()
+        fetchDataStatistics()
+    }, [])
+
+    const fetchDataProduct = async () => {
+        const result = await getCostImport(year)
+        if (result !== null) {
+            setCostImport(result)
+        }
+    }
+
+    const fetchDataRevenueSuccess = async () => {
+        const result = await getRevenueFromSuccess(year)
+        console.log(result)
+        if (result !== null) {
+            setRevenue(result)
+        }
+    }
+
+    const fetchDataStatistics = async () => {
+        const result = await getStatistics(year)
+        if (result !== null) {
+            setStatistics(result)
+        }
+    }
+
+
+    const getValueByMonth = (data, month) => {
+        return data.find((item) => item.month === month)?.cost || 0;
+    }
+
+    useEffect(() => {
+        const list = months.map((item, index) => getValueByMonth(costImport, index));
+        setCostImportChart(list);
+    }, [costImport]);
+
+    useEffect(() => {
+        const list = months.map((item, index) => getValueByMonth(revenue, index));
+        setRevenueChart(list);
+    }, [revenue])
+
+    useEffect(() => {
+        setCategoryName(statistics?.categoryNumberProducts?.map((item) => item?.categoryName))
+        setCategoryData(statistics?.categoryNumberProducts?.map((item) => item?.amount))
+    }, [statistics])
+
     return (<>
         <div className={cx('dashboard')}>
             <div className={cx('topic-1')}>
@@ -27,7 +85,7 @@ function DashBoard() {
                             <FaUsers style={styleIcon} />
                         </div>
                         <div className={cx('data')}>
-                            <h1 className={cx('total')}>167<span>USER</span></h1>
+                            <h1 className={cx('total')}>{statistics?.users}<span>USER</span></h1>
                         </div>
                     </div>
                     <div className={cx('plants', 'topic-1-item')}>
@@ -35,7 +93,7 @@ function DashBoard() {
                             <RiPlantFill style={styleIcon} />
                         </div>
                         <div className={cx('data')}>
-                            <h1 className={cx('total')}>1300000<span>VND</span></h1>
+                            <h1 className={cx('total')}>{statistics?.costProduct}<span>VND</span></h1>
                         </div>
                     </div>
                     <div className={cx('total-revenue-cash', 'topic-1-item')}>
@@ -43,7 +101,7 @@ function DashBoard() {
                             <BsCashCoin style={styleIcon} />
                         </div>
                         <div className={cx('data')}>
-                            <h1 className={cx('total')}>17889999<span>VND</span></h1>
+                            <h1 className={cx('total')}>{statistics?.revenueCash}<span>VND</span></h1>
                         </div>
                     </div>
                     <div className={cx('total-revenue-vnpay', 'topic-1-item')}>
@@ -51,7 +109,7 @@ function DashBoard() {
                             <GrVisa style={styleIcon} />
                         </div>
                         <div className={cx('data')}>
-                            <h1 className={cx('total')}>17889999<span>VND</span></h1>
+                            <h1 className={cx('total')}>{statistics?.revenueVnPay}<span>VND</span></h1>
                         </div>
                     </div>
                 </div>
@@ -63,21 +121,21 @@ function DashBoard() {
                             labels: months, // X-axis labels
                             datasets: [
                                 {
-                                    label: 'Revenue', // Label for the dataset
-                                    data: revenueData,
+                                    label: 'Revenue from successful order', // Label for the dataset
+                                    data: revenueChart,
                                     borderColor: 'rgba(255, 0, 0, 0.6)', // Màu đường biên cho dữ liệu doanh thu
                                     pointBackgroundColor: 'red', // Màu nền điểm cho dữ liệu doanh thu
                                     backgroundColor: 'rgba(255, 0, 0, 0.2)' // Màu nền cho dữ liệu doanh thu
-                                  },
-                                  {
-                                    label: 'Product', // Label for the dataset
-                                    data: product,
+                                },
+                                {
+                                    label: 'Product Cost Of Goods Sold', // Label for the dataset
+                                    data: costImportChart,
                                     borderColor: 'rgba(0, 128, 0, 0.6)', // Màu xanh lá cây cho đường biên cho dữ liệu sản phẩm
                                     pointBackgroundColor: 'green', // Màu xanh lá cây cho nền điểm cho dữ liệu sản phẩm
                                     backgroundColor: 'rgba(0, 128, 0, 0.2)' // Màu xanh lá cây cho nền cho dữ liệu sản phẩm
-                                  }
+                                }
                             ]
-                            
+
                         }}
                         options={{
                             elements: {
@@ -85,20 +143,33 @@ function DashBoard() {
                                     tension: 0.2,
                                 }
                             },
-                        }}  
-                    />
-                </div>
-                <div className={cx('topic-3')}>
-                    <Doughnut
-                        data = {{
-                            labels: category,
-                            datasets: [{
-                                data: data
-                            }]
                         }}
                     />
                 </div>
+                <div className={cx('topic-3')}>
+                    {categoryName?.length > 0 && categoryData?.length > 0 && (
+                        <Doughnut
+                            data={{
+                                labels: categoryName,
+                                datasets: [{
+                                    data: categoryData
+                                }]
+                            }}
+                        />
+                    )}
+                </div>
             </div>
+            {/* <div className={cx('filter')}>
+                <input ref={dateFromRef} onChange={() => {  }} type="date" id="from" name="birthday" />
+                <input ref={dateToRef} onChange={() => {  }} type="date" id="to" name="birthday" />
+            </div>
+            <div>
+                <table>
+                    <tr>
+                        <td></td>
+                    </tr>
+                </table>
+            </div> */}
         </div>
     </>);
 }

@@ -4,7 +4,7 @@ import classNames from "classnames/bind";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { CiTrash } from "react-icons/ci";
 import validator from "validator";
-import { errorAlert, processAlert, successAlert } from "../../../../Components/Alert";
+import { errorAlert, processAlert, submitCancelOkAlert, successAlert } from "../../../../Components/Alert";
 import Combobox from "../../../../Components/Selected";
 import { saveImport } from "../../../../Data/import";
 import { getAllProduct } from "../../../../Data/product";
@@ -70,7 +70,7 @@ function ImportProduct() {
         const totalPay = productsImport?.reduce((accumulator, item) => {
             return accumulator + (item?.product?.price * item?.amount);
         }, 0) || 0;
-        refTotalPay.current.value = totalPay +" VND"
+        refTotalPay.current.value = totalPay + " VND"
     }
 
     useEffect(() => {
@@ -140,18 +140,20 @@ function ImportProduct() {
     }
 
     const deleteProduct = (id) => {
-        setProductsImport((prev) => {
-            return prev?.filter((item) => item.product.id !== id);
-        });
+        submitCancelOkAlert(() => {
+            setProductsImport((prev) => {
+                return prev?.filter((item) => item.product.id !== id);
+            });
+        }, "Delete")
     };
 
 
     const saveImportInvoice = async () => {
-        if(productsImport.length === 0){
+        if (productsImport.length === 0) {
             errorAlert("No data import, choose product and try again!")
             return;
         }
-        if(isNaN(Number(supplierSelectedId)) || Number(supplierSelectedId) < 1){
+        if (isNaN(Number(supplierSelectedId)) || Number(supplierSelectedId) < 1) {
             errorAlert("Supplier not selected!")
             return;
         }
@@ -174,10 +176,10 @@ function ImportProduct() {
                 details: details
             }
             const result = await saveImport(data)
-            console.log("result: "+result)
-            if(result){
+            console.log("result: " + result)
+            if (result) {
                 successAlert("Insert import invoice successful")
-            }else{
+            } else {
                 errorAlert("Insert import invoice false, reload page and try again")
             }
         }, 1200)
@@ -185,15 +187,28 @@ function ImportProduct() {
 
 
     const deleteSupplier = async () => {
-        const result = await deleteSupplierById(supplierSelectedId)
-        if (result) {
-            setSupplierSelectedId(null)
-            fetchSupplierData()
-            refName.current.value = ""
-            refEmail.current.value = ""
-            refPhone.current.value = ""
-            refAddress.current.value = ""
+        if (supplierSelectedId !== null) {
+            const result = await deleteSupplierById(supplierSelectedId)
+            if (result) {
+                fetchSupplierData()
+                refName.current.value = ""
+                refEmail.current.value = ""
+                refPhone.current.value = ""
+                refAddress.current.value = ""
+                setSupplierSelectedId(null)
+                successAlert("Deleted supplier successful")
+            } else {
+                errorAlert("Supplier doesn't exist")
+            }
         }
+    }
+
+    const handleDeleteSupplier = () => {
+        if (supplierSelectedId === null) {
+            errorAlert("Selected supplier then you can delete")
+            return
+        }
+        submitCancelOkAlert(() => deleteSupplier())
     }
 
     const saveSupp = async () => {
@@ -222,12 +237,12 @@ function ImportProduct() {
             deleted: false,
         }
         const resultSave = await saveSupplier(supplier)
-        if(Number(resultSave) > 0){
+        if (Number(resultSave) > 0) {
             fetchSupplierData()
             setPlaceHoder("Select supplier already exist")
             setSupplierSelectedId(resultSave)
             successAlert("Save supplier")
-        }else{
+        } else {
             errorAlert("Supplier information already exist!")
         }
     }
@@ -268,6 +283,7 @@ function ImportProduct() {
                 </td>
             </tr></>
     }
+
 
     return (<>
         <div className={cx('product')}>
@@ -318,7 +334,7 @@ function ImportProduct() {
                                 <button className={cx('btnDeleteSpl_on')} onClick={() => saveSupp()}>Save</button>
                                 <Tippy content="Selected supplier then you can delete">
                                     <button onClick={() => {
-                                        deleteSupplier()
+                                        handleDeleteSupplier()
                                     }} className={cx(styleBtnSupplier ? 'btnDeleteSpl_on' : 'btnDeleteSpl_off')} >Delete</button>
                                 </Tippy>
                             </div>
@@ -331,8 +347,12 @@ function ImportProduct() {
                                 handleSaveTemporarily()
                             }}>Save temporarily</button>
                             <button className={cx('remove_all')} onClick={() => {
-                                localStorage.removeItem("productsImport")
-                                setProductsImport([])
+                                if(productsImport?.length> 0 ){
+                                    submitCancelOkAlert(() => {
+                                        localStorage.removeItem("productsImport")
+                                        setProductsImport([])
+                                    }, "Delete All")
+                                }
                             }}>Remove all</button>
                         </div>
                         <div className={cx('table')}>

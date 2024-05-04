@@ -30,6 +30,18 @@ const warningAlert = (content) => {
       });
 }
 
+const infoAlert = (content) => {
+  Swal.fire({
+      position: "center",
+      icon: "info",
+      title: content,
+      showConfirmButton: false,
+      timer: 1000,
+      background: 'rgba(0,0,0,0.4)',
+      color: 'white',
+    });
+}
+
 const processAlert = (title, content) => {
     let timerInterval;
     Swal.fire({
@@ -54,18 +66,20 @@ const processAlert = (title, content) => {
       });
 }
 
-const submitAlert = (success, fucn) => {
+
+const submitCancelOkAlert = (fucn, action) => {
   Swal.fire({
-    title: "PAY ORDER RESUL",
-    text: success ? "Transaction with VNPay successful" : "Transaction failed, please try again later",
-    icon: success ? "success" : "error",
-    allowOutsideClick: false 
+    title: "Are you sure?",
+    showDenyButton: true,
+    showCancelButton: false,
+    confirmButtonText: action || "Delete",
   }).then((result) => {
     if (result.isConfirmed) {
       fucn()
+    } else if (result.isDenied) {
     }
   });
 }
 
-export { errorAlert, processAlert, submitAlert, successAlert, warningAlert };
+export { errorAlert, infoAlert, processAlert, submitCancelOkAlert, successAlert, warningAlert };
 

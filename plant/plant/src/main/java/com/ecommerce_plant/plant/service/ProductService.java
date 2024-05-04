@@ -5,9 +5,13 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.ecommerce_plant.plant.mapping.modelmapping.CategoryNumberProduct;
 import com.ecommerce_plant.plant.model.Product;
 import com.ecommerce_plant.plant.repository.ProductRep;
 
+/**
+ * @author lemonftdev
+ */
 @Service
 public class ProductService {
 
@@ -96,5 +100,9 @@ public class ProductService {
         } catch (Exception e) {
             return productRep.SoftdeleteProduct(id) ? "Delete successfully" : "Delete failed";
         }
+    }
+
+    public List<CategoryNumberProduct> findNumberProductByCategory() {
+        return productRep.findNumberProductByCategory();
     }
 }

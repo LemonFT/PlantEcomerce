@@ -18,6 +18,7 @@ import WelcomePage from "./Pages/Management/WelcomePage"
 import Message from "./Pages/Message"
 import ProductDetails from "./Pages/ProductDetails"
 import Register from "./Pages/Register"
+import ForgotPwd from "./Pages/Register/ForgotPwd"
 import Shop from "./Pages/Shop"
 import { DataContext } from "./Provider/DataProvider"
 
@@ -76,6 +77,7 @@ function App() {
       { path: '/products', element: <Shop /> },
       { path: '/cart', element: <Cart /> },
       { path: '/register', element: <Register /> },
+      { path: '/forgot', element: <ForgotPwd /> },
       { path: '/contacts', element: <Contact /> },
       { path: '/productdetails', element: <ProductDetails /> },
       { path: '/chat', element: <Message /> },

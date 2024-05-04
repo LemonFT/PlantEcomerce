@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import classNames from "classnames/bind";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import Header from "../../Components/Header";
 import Combobox from "../../Components/Selected";
 import SideBar from "../../Components/SideBar";
@@ -15,6 +15,7 @@ import { useNavigate } from "react-router-dom";
 import { errorAlert } from "../../Components/Alert";
 import Footer from "../../Components/Footer";
 import { addProductToCart, getProducts } from "../../Data/product";
+import { useDebounce } from "../../Global";
 import img01 from "../../Images/1.png";
 import img02 from "../../Images/2.png";
 import { DataContext } from "../../Provider/DataProvider";
@@ -24,15 +25,13 @@ function Shop() {
     const cx = classNames.bind(styles)
     const styleIcon = { fontSize: '25px' }
     const navigate = useNavigate()
-    const [showAlert, setShowAlert] = useState(false)
+    const searchKey = useRef(null)
     const { user, maxPrice, productCategory } = useContext(DataContext)
-
     const [data, setData] = useState([])
     const [pageFocus, setPageFocus] = useState(1)
     const [categoryFil, setCategoryFil] = useState([])
-    const [searchFil, setSearchFil] = useState("")
     const [priceFilter, setPriceSlider] = useState([0, maxPrice]);
-    const NUMBER_PRODUCT_PERPAGE = 20;
+    const NUMBER_PRODUCT_PERPAGE = 5;
 
     useEffect(() => {
         const fetchData = async () => {
@@ -43,9 +42,12 @@ function Shop() {
     }, [])
 
     useEffect(() => {
-        console.log(categoryFil)
         handleUpdateFilter()
     }, [pageFocus])
+
+    useEffect(() => {
+        handleSearch()
+    }, [priceFilter, categoryFil])
 
     const handleRangeUpdate = (newRange) => {
         setPriceSlider(newRange)
@@ -58,7 +60,7 @@ function Shop() {
     const handleUpdateFilter = async () => {
         const minNumber = parseInt(priceFilter[0]);
         const maxNumber = parseInt(priceFilter[1]);
-        const dt = await getProducts(pageFocus, NUMBER_PRODUCT_PERPAGE, searchFil,
+        const dt = await getProducts(pageFocus, NUMBER_PRODUCT_PERPAGE, searchKey?.current?.value,
             Number(minNumber), Number(maxNumber),
             categoryFil || [])
         if (dt != null) {
@@ -66,10 +68,17 @@ function Shop() {
         }
     }
 
+    const searchDebounce = useDebounce(handleUpdateFilter, 1000)
+    const handleSearch = () => {
+        searchDebounce()
+    }
+
 
     const handlePageNumber = (index, plus, minus) => {
         if (plus) {
-            return Math.ceil(data.total_amount / NUMBER_PRODUCT_PERPAGE) < pageFocus && setPageFocus(pageFocus + 1)
+            console.log(Math.ceil(data.total_amount / NUMBER_PRODUCT_PERPAGE))
+            console.log(pageFocus)
+            return Math.ceil(data.total_amount / NUMBER_PRODUCT_PERPAGE) > pageFocus && setPageFocus(pageFocus + 1)
         }
         if (minus) {
             return 1 !== pageFocus && setPageFocus(pageFocus - 1)
@@ -78,19 +87,13 @@ function Shop() {
     }
 
     const convertOptionProductCategory = () => {
+        console.log(categoryFil)
         return productCategory.map(item => ({
             value: item.id,
             label: item.name
         }));
     }
 
-
-    useEffect(() => {
-        const timeout = setTimeout(() => {
-            if (showAlert) setShowAlert(false)
-        }, 2000)
-        return () => clearTimeout(timeout)
-    }, [showAlert])
 
     const Product = ({ className, item, index }) => {
         const [addCart, setAddCart] = useState(false);
@@ -167,19 +170,16 @@ function Shop() {
             </div>
             <div className={cx('search_filter')}>
                 <div className={cx('input_search')}>
-                    <input placeholder="Bạn cần tìm gì?" onChange={(e) => {
-                        setSearchFil(e.target.value)
+                    <input ref={searchKey} placeholder="Bạn cần tìm gì?" onChange={() => {
+                        handleSearch()
                     }} />
                 </div>
                 <div className={cx('price_slider')}>
                     <PriceFilter min={0} max={maxPrice} funcGetRange={handleRangeUpdate} />
                 </div>
                 <div className={cx('category')}>
-                    <Combobox options={convertOptionProductCategory()} isMulti={true} closeMenuOnSelect={false} returnValue={handleCategorySelectUpdate} />
+                    <Combobox options={convertOptionProductCategory()} notrenderNull={true} isMulti={true} closeMenuOnSelect={false} returnValue={handleCategorySelectUpdate} />
                 </div>
-            </div>
-            <div className={cx('btnFilter')}>
-                <button onClick={() => handleUpdateFilter()}>Update</button>
             </div>
             <div className={cx('products')}>
                 {

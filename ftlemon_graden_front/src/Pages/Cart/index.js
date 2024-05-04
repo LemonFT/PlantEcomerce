@@ -13,8 +13,8 @@ import { SiCashapp } from "react-icons/si";
 
 
 import { Link, useNavigate } from "react-router-dom";
-import { errorAlert, successAlert, warningAlert } from "../../Components/Alert";
-import { deleteOrder, getAllOrdersByUserId, paymentOrder, saveOrder, updateExchangeProgressing } from "../../Data/order";
+import { errorAlert, submitCancelOkAlert, successAlert, warningAlert } from "../../Components/Alert";
+import { deleteOrder, getAllOrdersByUserId, paymentOrder, saveOrder, updateExchangeProgressing, updateStatusOrder } from "../../Data/order";
 import { deleteAllProductInCart, deleteProductInCart, getCart } from "../../Data/product";
 import { getVerificationEmailCode } from "../../Data/user";
 import { compareString, encryptString, formatDate, isVietnamesePhoneNumber } from "../../Global";
@@ -30,7 +30,6 @@ function Cart() {
     const ipAdress = useRef(null)
     const ipPhone = useRef(null)
     const ipEmailCode = useRef(null)
-    const ipTypePay = useRef(null)
     const privacy = [
         {
             section: "Phương thức thanh toán",
@@ -73,8 +72,29 @@ function Cart() {
     const [showFormContact, setShowFormContact] = useState(false)
     const [contactSaved, setContactSaved] = useState(null)
     const [showCart, setShowCart] = useState(true)
+    const [addressSave, setAddressSave] = useState("")
+    const [phoneSave, setPhoneSave] = useState("")
+    const [mailCodeSave, setMailCodeSave] = useState("")
+    const [typePay, setTypePay] = useState(1)
 
 
+    useEffect(() => {
+        if (ipAdress) {
+            ipAdress?.current?.focus()
+        }
+    }, [addressSave])
+
+    useEffect(() => {
+        if (ipPhone) {
+            ipPhone?.current?.focus()
+        }
+    }, [phoneSave])
+
+    useEffect(() => {
+        if (ipEmailCode) {
+            ipEmailCode?.current?.focus()
+        }
+    }, [mailCodeSave])
 
     useEffect(() => {
         const queryString = window.location.search;
@@ -89,13 +109,11 @@ function Cart() {
                     saveTransactionVnPay(orderId, transaction_no, urlParams);
                 }, 1000);
             } else {
-                errorAlert("Transaction failed, please try again later")
                 setTimeout(() => {
                     handleDeleteOrder(orderId);
                 }, 1000);
             }
         } else if (localStorage.getItem("orderId") && !urlParams.has('vnp_status')) {
-            errorAlert("Transaction failed, please try again later")
             setTimeout(() => {
                 handleDeleteOrder(localStorage.getItem("orderId"));
             }, 1000);
@@ -120,8 +138,8 @@ function Cart() {
 
     useEffect(() => {
         if (contactSaved !== null) {
-            ipAdress.current.value = contactSaved.address
-            ipPhone.current.value = contactSaved.phone_number
+            setAddressSave(contactSaved.address)
+            setPhoneSave(contactSaved.phone_number)
         }
     }, [contactSaved])
 
@@ -145,9 +163,12 @@ function Cart() {
     }
 
     const handleDeleteOrder = async (orderId) => {
-        const resultDeleteOrder = await deleteOrder(orderId)
-        if (resultDeleteOrder) {
-            localStorage.removeItem("orderId")
+        if (orderId) {
+            const resultDeleteOrder = await deleteOrder(orderId)
+            if (resultDeleteOrder) {
+                errorAlert("Transaction failed, please try again later")
+                localStorage.removeItem("orderId")
+            }
         }
     }
 
@@ -160,7 +181,6 @@ function Cart() {
         })
         setProduct(newProduct)
     }
-
 
     const getTotalPay = () => {
         let total_pay = 0;
@@ -199,23 +219,19 @@ function Cart() {
     }
 
     const savePayment = async () => {
-        const addressStr = ipAdress.current.value
-        const phoneStr = ipPhone.current.value
-        const emailCodeStr = ipEmailCode.current.value
-        const ipTypePayCheck = ipTypePay.current.checked ? 2 : 1
         if (product.length === 0 || getTotalPay() === 0) {
             warningAlert("No products available yet!")
             return
         }
-        if (addressStr === "" || phoneStr === "" || emailCodeStr === "") {
+        if (addressSave === "" || phoneSave === "" || mailCodeSave === "") {
             warningAlert("Check contact information and try again later!")
             return
         }
-        if (!isVietnamesePhoneNumber(phoneStr)) {
+        if (!isVietnamesePhoneNumber(phoneSave)) {
             warningAlert("Phone number invalid!")
             return
         }
-        if (!JSON.parse(localStorage.getItem('verificode')) || !compareString(emailCodeStr, JSON.parse(localStorage.getItem('verificode')), process.env.REACT_APP_SECRETKEY)) {
+        if (!JSON.parse(localStorage.getItem('verificode')) || !compareString(mailCodeSave, JSON.parse(localStorage.getItem('verificode')), process.env.REACT_APP_SECRETKEY)) {
             warningAlert("Verification Email code failed!")
             return
         }
@@ -224,10 +240,10 @@ function Cart() {
         const data = {
             order: {
                 userReceiveId: user?.id,
-                address: addressStr,
-                phoneNumber: phoneStr,
+                address: addressSave,
+                phoneNumber: phoneSave,
                 totalPay: getTotalPay(),
-                payTypeId: ipTypePayCheck
+                payTypeId: typePay
             },
             orderItems: product.map((item) => {
                 return {
@@ -244,9 +260,10 @@ function Cart() {
         } else {
             localStorage.removeItem('verificode')
             localStorage.setItem('orderId', resultSaveOrder)
-            if (ipTypePayCheck === 2) {
+            if (typePay === 2) {
                 payWithVnpay()
             } else {
+                localStorage.removeItem('orderId')
                 localStorage.removeItem('verificode')
                 handleRemoveAllProduct(user?.id)
                 successAlert("Order placed successfully")
@@ -366,13 +383,13 @@ function Cart() {
                     <div className={cx('typepay_pay')}>
                         <div className={cx('typepay')}>
                             <div className={cx('payafter')}>
-                                <input type="radio" name="typepay" id="payafter" value={"Thanh toán sau khi nhận hàng"} />
+                                <input onChange={() => setTypePay(1)} type="radio" name="typepay" id="payafter" value={"Thanh toán sau khi nhận hàng"} defaultChecked={typePay === 1} />
                                 <label htmlFor="payafter" >Thanh toán sau khi nhận hàng</label>
                                 <span htmlFor="payafter"><img src={payafter} alt="" /></span>
                             </div>
 
                             <div className={cx('vnpay')}>
-                                <input ref={ipTypePay} type="radio" name="typepay" id="vnpay" value={"Thanh toán qua VNPay"} defaultChecked={true} />
+                                <input onChange={() => setTypePay(2)} type="radio" name="typepay" id="vnpay" value={"Thanh toán qua VNPay"} defaultChecked={typePay === 2} />
                                 <label htmlFor="vnpay">Thanh toán qua VNPay</label>
                                 <span htmlFor="vnpay"><img className={cx('vnpayimg')} src={vnpay} alt="" /></span>
                             </div>
@@ -380,6 +397,7 @@ function Cart() {
                         <div className={cx('form-information')}>
                             {showFormContact && <FormContact functionCallBack={(contact) => {
                                 setContactSaved(contact)
+                                setShowFormContact(false)
                             }} />}
                             <span className={cx('active-auto-contact')} onClick={() => {
                                 setShowFormContact(prev => !prev)
@@ -390,15 +408,15 @@ function Cart() {
                                 Thông tin người đặt hàng
                             </div>
                             <div className={cx('box-input')}>
-                                <input id="ip-address" ref={ipAdress} />
+                                <input ref={ipAdress} id="ip-address" value={addressSave} onChange={(e) => setAddressSave(e.target.value)} />
                                 <label htmlFor="ip-address">Address</label>
                             </div>
                             <div className={cx('box-input')}>
-                                <input id="ip-phoneNum" ref={ipPhone} />
+                                <input ref={ipPhone} id="ip-phoneNum" value={phoneSave} onChange={(e) => setPhoneSave(e.target.value)} />
                                 <label htmlFor="ip-phoneNum">Phone number</label>
                             </div>
                             <div className={cx('box-input')}>
-                                <input id="ip-emailCode" ref={ipEmailCode} />
+                                <input ref={ipEmailCode} id="ip-emailCode" value={mailCodeSave} onChange={(e) => setMailCodeSave(e.target.value)} />
                                 <label htmlFor="ip-emailCode">Verification email</label>
                             </div>
                             <div className={cx('total-pay')}>
@@ -411,7 +429,6 @@ function Cart() {
                                         <RiLoader4Fill style={styleIcon} />
                                     </span>
                                 </button>
-                                <button>Save contact</button>
                             </div>
                         </div>
                         <div className={cx('total_and_pay')}>
@@ -449,7 +466,7 @@ function Cart() {
         </>
     }
 
-    const ItemOrder = ({ item, index }) => {
+    const ItemOrder = ({ item, index, fetchOrder }) => {
 
         const getTotalPayOrder = () => {
             return item?.orderItemProducts?.reduce((total, item) => {
@@ -463,13 +480,18 @@ function Cart() {
             }, 0);
         }
 
-        const cancelOrder = () => {
-
+        const cancelOrder = async () => {
+            submitCancelOkAlert(async () => {
+                const result = await updateStatusOrder(item?.order?.id, 4)
+                if (result === true) {
+                    successAlert("Cancel order successful")
+                    fetchOrder()
+                } else {
+                    errorAlert("Cancel order failed!")
+                }
+            }, "Cancel Order")
         }
 
-        const updateContact = () => {
-
-        }
 
         return (
             <div className={cx('item')} key={index}>
@@ -478,9 +500,9 @@ function Cart() {
                 {item.progressingOrder.statusOrder === 5 && <div className={cx('order-status')}>There was a problem with the store, so your order was canceled, we will contact you as soon as possible</div>}
                 <div className={cx('product-list')}>
                     {
-                        item?.orderItemProducts?.map((orderItem) => {
+                        item?.orderItemProducts?.map((orderItem, index) => {
                             return <>
-                                <div className={cx('product')}>
+                                <div className={cx('product')} key={index}>
                                     <span className={cx('product-name')}>{orderItem?.productName}</span>
                                     <span className={cx('product-quantity')}>x{orderItem?.number}</span>
                                     <span className={cx('product-voucher')}>{orderItem?.voucher !== 0 ? ("-" + orderItem?.voucher * 100 + "%") : "-0%"}</span>
@@ -490,28 +512,37 @@ function Cart() {
                         })
                     }
                 </div>
-                <div className={cx('order-total')}>
-                    <span><SiCashapp style={styleIcon} /></span>
-                    Total Payment: {getTotalPayOrder()} VND</div>
-                <div className={cx('order-total')}>
-                    <span><CiSquareCheck style={styleIcon} /></span>
-                    {item?.progressingOrder?.exchangeId !== null ? "Paid" : "Unpaid"}
+                <div className={cx('order-information')}>
+                    <div className={cx('order-total')}>
+                        <span><SiCashapp style={styleIcon} /></span>
+                        <span>Total Payment: {getTotalPayOrder()} VND</span>
+                    </div>
+                    <div className={cx('paid')}>
+                        <span>
+                            <CiSquareCheck style={styleIcon} />
+                        </span>
+                        <span>
+                            {item?.progressingOrder?.exchangeId !== null ? "Paid" : "Unpaid"}
+                        </span>
+                    </div>
+                    <div className={cx('address')}>
+                        <span><CiLocationOn style={styleIcon} /></span>
+                        <span>Address: {item?.order?.address}</span>
+                    </div>
+                    <div className={cx('phone-num')}>
+                        <span><CiPhone style={styleIcon} /></span>
+                        <span>Phone number: {item?.order?.phoneNumber}</span>
+                    </div>
                 </div>
-                <div className={cx('address')}>
-                    <span><CiLocationOn style={styleIcon} /></span>
-                    Address: {item?.order?.address}</div>
-                <div className={cx('phone-num')}>
-                    <span><CiPhone style={styleIcon} /></span>
-                    Phone number: {item?.order?.phoneNumber}</div>
                 {
                     item?.progressingOrder?.statusOrder === 0 &&
                     <div className={cx('btn-group')} >
-                        <button className={cx('cancel-btn')} onAbort={() => {
+                        <button className={cx('cancel-btn')} onClick={() => {
                             cancelOrder()
                         }}>Cancel Order</button>
-                        <button className={cx('update-address-btn')} onClick={() => {
+                        {/* <button className={cx('update-address-btn')} onClick={() => {
                             updateContact()
-                        }}>Update Contact</button>
+                        }}>Update Contact</button> */}
                     </div>
                 }
             </div>
@@ -537,10 +568,10 @@ function Cart() {
         useEffect(() => {
             if (!orders) return;
             const filteredOrders = orders.filter(item => {
-                if(headerItem === 5){
+                if (headerItem === 5) {
                     return item?.progressingOrder?.statusOrder === 4 || item?.progressingOrder?.statusOrder === 5
                 }
-                return  (item?.progressingOrder?.statusOrder) === (headerItem - 1)
+                return (item?.progressingOrder?.statusOrder) === (headerItem - 1)
             });
             setOrdersRender(filteredOrders);
         }, [orders, headerItem]);
@@ -572,8 +603,15 @@ function Cart() {
                 <div className={cx('items')}>
                     {
                         ordersRender && ordersRender?.map((item, index) => {
-                            return <ItemOrder item={item} index={index} />
+                            return <ItemOrder item={item} index={index} fetchOrder={() => { fetchOrder() }} />
                         })
+                    }
+                    {
+                        (!ordersRender || ordersRender?.length === 0) && <>
+                            <div className={cx('no_data')}>
+                                <span>NO DATA</span>
+                            </div>
+                        </>
                     }
                 </div>
             </div>

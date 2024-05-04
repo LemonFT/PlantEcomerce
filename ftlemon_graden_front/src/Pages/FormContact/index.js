@@ -43,9 +43,9 @@ function FormContact({ functionCallBack }) {
         return () => clearTimeout(t)
     }, [alert])
 
-    const ItemContact = ({ contact }) => {
+    const ItemContact = ({ contact, index }) => {
         return <>
-            <div className={cx('contact')}>
+            <div key={index} className={cx('contact')}>
                 <div className={cx('icon-location')} onClick={() => {
                     functionCallBack(contact)
                 }}>
@@ -91,8 +91,8 @@ function FormContact({ functionCallBack }) {
                 </div>
                 <div className={cx('list-contact')}>
                     {
-                        contacts?.map((contact) => (
-                            <ItemContact contact={contact} />
+                        contacts?.map((contact, index) => (
+                            <ItemContact contact={contact} index={index}/>
                         ))
                     }
                 </div>

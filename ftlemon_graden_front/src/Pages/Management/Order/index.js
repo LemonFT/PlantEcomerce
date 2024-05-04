@@ -1,6 +1,10 @@
 import classNames from "classnames/bind";
 import React, { useEffect, useRef, useState } from "react";
-import { CiSearch } from "react-icons/ci";
+import { CiLocationOn, CiPhone, CiSearch, CiSquareCheck } from "react-icons/ci";
+import { MdOutlineBorderColor } from "react-icons/md";
+import { PiPlantFill } from "react-icons/pi";
+import { SiCashapp } from "react-icons/si";
+import { TiArrowBackOutline } from "react-icons/ti";
 import { errorAlert, successAlert } from "../../../Components/Alert";
 import { getAllOrders, updateStatusOrder, updateStatusOrders } from "../../../Data/order";
 import { formatDate, useDebounce } from "../../../Global";
@@ -16,6 +20,7 @@ function Order() {
     const [orders, setOrders] = useState([])
     const [ordersRender, setOrdersRender] = useState([])
     const [formUpdateStatus, setFormUpdateStatus] = useState([-1, -1, -1])
+    const [formDetails, setFormDetails] = useState(null)
     const optionStatus = [
         { value: 0, label: "Wait for confirmation" },
         { value: 1, label: "Being packaged" },
@@ -82,12 +87,12 @@ function Order() {
         const orderIds = ordersRender.map((item) => {
             return item?.order?.id
         })
-        const orderStatus = ordersRender[0].progressingOrder?.statusOrder+1;
+        const orderStatus = ordersRender[0].progressingOrder?.statusOrder + 1;
         const resultUpdateOrders = await updateStatusOrders(orderIds, orderStatus)
-        if(resultUpdateOrders){
+        if (resultUpdateOrders) {
             successAlert("Update all orders status successful")
             fetchOrder()
-        }else{
+        } else {
             errorAlert("Update all orders status failed, try again later!")
         }
     }
@@ -98,10 +103,10 @@ function Order() {
         })
         const orderStatus = 5
         const resultUpdateOrders = await updateStatusOrders(orderIds, orderStatus)
-        if(resultUpdateOrders){
+        if (resultUpdateOrders) {
             successAlert("Update all orders status successful")
             fetchOrder()
-        }else{
+        } else {
             errorAlert("Update all orders status failed, try again later!")
         }
     }
@@ -111,7 +116,7 @@ function Order() {
             { statusNow: 0, label: "Being packaged", status: 1 },
             { statusNow: 1, label: "Being transported", status: 2 },
             { statusNow: 2, label: "Complete", status: 3 },
-            { statusNow: 3, label: "Complete, not update", status: statusN },
+            { statusNow: 3, label: "Complete, not update", status: 4 },
             { statusNow: 4, label: "Cancel by customer, not update", status: statusN },
             { statusNow: 5, label: "Cancel by shop, not update", status: statusN },
         ]
@@ -128,7 +133,7 @@ function Order() {
         const updateStatus = async () => {
             const statusUpdate = getStatusOrderUpdate(statusN)
             console.log(statusUpdate)
-            if (statusUpdate === 3 || statusUpdate === 4 || statusUpdate === 5) {
+            if (statusUpdate === 4 || statusUpdate === 5 || statusUpdate === 5) {
                 return;
             }
             const result = await updateStatusOrder(orderId, statusUpdate)
@@ -176,10 +181,12 @@ function Order() {
     }
 
     const Row = ({ item, index }) => {
+        console.log(item)
         return <>
             <tr key={index}>
                 <td>{index}</td>
                 <td>{item?.order?.code}</td>
+                <td>{item?.order?.userReceiveId}</td>
                 <td>{formatDate(new Date(item?.order?.initTime))}</td>
                 <td><span className={cx(item?.progressingOrder?.exchangeId === null ? 'w' : 's')}>{item?.progressingOrder?.exchangeId === null ? "Unpaid" : "Paid"}</span></td>
                 <td><span className={cx(item?.progressingOrder?.statusOrder === 3 ? 's' : (item?.progressingOrder?.statusOrder > 3 ? 'e' : 'w'))}>{getNameOrderStatus(item?.progressingOrder?.statusOrder)}</span></td>
@@ -189,13 +196,84 @@ function Order() {
                         Update
                     </button>
                 </td>
-                <td><button className={cx('btn_see_details')}>View order details</button></td>
+                <td><button className={cx('btn_see_details')} onClick={() => { setFormDetails(item) }}>View order details</button></td>
             </tr>
+        </>
+    }
+
+    const ViewDetails = ({item, close}) => {
+        const getTotalPayOrder = () => {
+            return item?.orderItemProducts?.reduce((total, item) => {
+                if (item && typeof item === 'object') {
+                    const { number, voucher, price } = item;
+                    if (typeof number === 'number' && typeof voucher === 'number' && typeof price === 'number') {
+                        total += number * (1 - voucher) * price;
+                    }
+                }
+                return total;
+            }, 0);
+        }
+        return <>
+            <div className={cx('details')}>
+                <div className={cx('back')} onClick={() => {close()}}>
+                    <span>Back</span>
+                    <TiArrowBackOutline style={styleIcon} />
+                </div>
+                <div className={cx('order-id')}>{item?.order?.code}</div>
+                <div className={cx('order-time')}>{formatDate(new Date(item?.order?.initTime))}</div>
+                <div className={cx('title-products')}>
+                    <span>Products list</span>
+                    <span><PiPlantFill style={styleIcon} /></span>
+                </div>
+                <div className={cx('product-list')}>
+                {
+                        item?.orderItemProducts?.map((orderItem, index) => {
+                            return <>
+                                <div className={cx('product')} key={index}>
+                                    <span className={cx('product-name')}>{orderItem?.productName}</span>
+                                    <span className={cx('product-quantity')}>x{orderItem?.number}</span>
+                                    <span className={cx('product-voucher')}>{orderItem?.voucher !== 0 ? ("-" + orderItem?.voucher * 100 + "%") : "-0%"}</span>
+                                    <span className={cx('product-price')}>Total: {(orderItem?.number * (1 - orderItem?.voucher) * orderItem?.price)} VND</span>
+                                </div>
+                            </>
+                        })
+                    }
+                </div>
+                <div className={cx('title-order')}>
+                    <span>Order informations</span>
+                    <span><MdOutlineBorderColor style={styleIcon} /></span>
+                </div>
+                <div className={cx('order-information')}>
+                <div className={cx('order-total')}>
+                        <span><SiCashapp style={styleIcon} /></span>
+                        <span>Total Payment: {getTotalPayOrder()} VND</span>
+                    </div>
+                    <div className={cx('pay')}>
+                        <span>
+                            <CiSquareCheck style={styleIcon} />
+                        </span>
+                        <span>
+                            {item?.progressingOrder?.exchangeId !== null ? "Paid" : "Unpaid"}
+                        </span>
+                    </div>
+                    <div className={cx('address')}>
+                        <span><CiLocationOn style={styleIcon} /></span>
+                        <span>Address: {item?.order?.address}</span>
+                    </div>
+                    <div className={cx('phone-num')}>
+                        <span><CiPhone style={styleIcon} /></span>
+                        <span>Phone number: {item?.order?.phoneNumber}</span>
+                    </div>
+                </div>
+            </div>
         </>
     }
 
     return (<>
         <div className={cx('orders')}>
+            {
+                formDetails && <ViewDetails item={formDetails} close={() => {setFormDetails(null)}}/>
+            }
             <div className={cx('header')}>
                 <div className={cx('header_item')} style={headerItem === 1 ? { borderBottom: '5px solid green' } : {}}
                     onClick={() => setHeaderItem(1)}>All{headerItem === 1 && "(" + ordersRender.length + ")"}
@@ -229,7 +307,7 @@ function Order() {
                         <button className={cx('update_all')} onClick={() => { updateAll() }}>
                             Update All
                         </button>
-                        <button className={cx('cancel_all')} onClick={() => {cancelAll()}}>
+                        <button className={cx('cancel_all')} onClick={() => { cancelAll() }}>
                             Cancel All
                         </button>
                     </>
@@ -249,6 +327,7 @@ function Order() {
                         <tr>
                             <td>id</td>
                             <td>code</td>
+                            <td>userReceiveId</td>
                             <td>time</td>
                             <td>payment status</td>
                             <td>order status</td>

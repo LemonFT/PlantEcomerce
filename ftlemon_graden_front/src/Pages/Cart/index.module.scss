@@ -503,6 +503,30 @@
         .items {
             background-color: transparent;
             min-height: 120vh;
+            .no_data{
+                width: 100%;
+                height: 50vh;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                text-align: center;
+                background-size: contain;
+                background-position: center;
+                background-repeat: no-repeat;
+                background-image: url('https://d8it4huxumps7.cloudfront.net/uploads/images/64dc4c904c175_no_search_result.png');
+                span{
+                    padding: 10px 20px;
+                    border-radius: 5px;
+                    width: 200px;
+                    height: 50px;
+                    background-color: #c82333;
+                    color: white;
+                    text-align: center;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                }
+            }
             .item {
                 padding: 20px;
                 border: 1px solid #ccc;
@@ -557,18 +581,52 @@
                         }
                     }
                 }
-            
-                .order-total,
-                .address,
-                .phone-num {
+
+                .order-information{
                     display: flex;
                     justify-content: center;
-                    align-items: center;
-                    font-size: 14px;
-                    display: flex;
-                    align-items: center;
-                    span {
-                        margin-right: 5px;
+                    align-items: flex-start;
+                    flex-direction: column;
+                    gap: 5px;
+                    border: .5px solid #666;
+                    padding: 30px;
+                    border-radius: 5px;
+                    margin-bottom: 20px;
+                    margin-top: 10px;
+                    padding-left: 20%;
+                    .address{
+                        span{
+                            svg{
+                                color: rgb(46, 139, 87);
+                            }
+                        }
+                    }
+                    .paid{
+                        span{
+                            svg{
+                                color: rgb(0, 123, 255);
+                            }
+                        }
+                    }
+                    .phone-num{
+                        span{
+                            svg{
+                                color: rgb(255, 0, 0);
+                            }
+                        }
+                    }
+                    .order-total,
+                    .address,
+                    .phone-num,
+                    .paid {
+                        display: flex;
+                        justify-content: left;
+                        align-items: center;
+                        font-size: 14px;
+                        gap: 400px;
+                        span {
+                            margin-right: 5px;
+                        }
                     }
                 }
             

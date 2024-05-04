@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 /**
  * @author lemonftdev
@@ -12,7 +13,9 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CostOfGoodsSoldByYear {
-    private int month;
-    private double cost;
+@ToString
+public class CategoryNumberProduct {
+    private int categoryId;
+    private String categoryName;
+    private int amount;
 }

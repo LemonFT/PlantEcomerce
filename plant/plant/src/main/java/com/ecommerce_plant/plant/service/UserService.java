@@ -102,6 +102,14 @@ public class UserService {
         }
     }
 
+    public boolean updatePwd(User user) {
+        user.setPassword(BCrypt.hashpw(user.getPassword(), BCrypt.gensalt(5)));
+        if (userRep.findUser(user.getEmail()) == null) {
+            return false;
+        }
+        return userRep.updatePwd(user);
+    }
+
     public User signIn(User user) {
         User userSimilar = null;
         try {
@@ -174,5 +182,9 @@ public class UserService {
         String subject = EmailProperty.TITLE_MAIL;
         String message = EmailProperty.CONTENT_MAIL + uniqN;
         return !iEmailService.send(to, subject, message).equals("") ? uniqN + "" : "";
+    }
+
+    public int countUsers() {
+        return userRep.countUsers();
     }
 }

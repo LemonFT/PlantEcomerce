@@ -1,5 +1,5 @@
 import classNames from "classnames/bind";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 import AOS from "aos";
 import "aos/dist/aos.css";
@@ -15,10 +15,11 @@ import ar1 from "../../Images/arrow-freestyle-.png";
 import ar2 from "../../Images/arrow_freestyle.png";
 import img_bg_sl_05 from "../../Images/bg.png";
 import img_product_sl_one from "../../Images/bgtree3.jpeg";
-import img_product01_sl_one from "../../Images/re.webp";
 
+import { useNavigate } from "react-router-dom";
 import Footer from "../../Components/Footer";
 import SideBar from "../../Components/SideBar";
+import { getAllProduct } from "../../Data/product";
 import { DataContext } from "../../Provider/DataProvider";
 import Message from "../Message";
 import styles from "./index.module.scss";
@@ -34,6 +35,19 @@ function Home() {
     const cx = classNames.bind(styles)
     const styleIcon = { fontSize: '25px' }
     const {user} = useContext(DataContext)
+    const [product, setProduct] = useState([])
+
+    const fetchDataProduct = async () => {
+        const result = await getAllProduct()
+        if(result != null){
+            setProduct(result)
+        }
+    }
+
+    useEffect(() => {
+        fetchDataProduct()
+    }, [])
+    
     
     const SlideOne = () => {
         return <>
@@ -68,37 +82,52 @@ function Home() {
         </>
     }
     const SlideTwo = () => {
-        const Product = ({ img, name, price }) => {
+        const navigate = useNavigate(null)
+
+        const navigateDetails = (id, code, name) => {
+            navigate(`/productdetails?product-id=${id}&code=${code}&name=${name}`)
+        }
+
+        const Product = ({ img, name, price, id, code }) => {
             return <>
-                <div className={cx('product')}>
+                <div className={cx('product')} onClick={() => {
+                    navigateDetails(id, code, name)
+                }}>
                     <img src={img} alt="" />
                     <h3>{name}</h3>
-                    <span>{price}</span>
+                    <span>{price}VND</span>
                 </div>
             </>
         }
+
+        
         return <>
             <div className={cx('slide-two')}>
                 <div className={cx('left')} data-aos='fade-right'>
                     <div className={cx('title')}>
-                        <h2>Best selling plants</h2>
+                        <h2>Plants shop</h2>
                     </div>
                     <div className={cx('para')}>
                         <h5>Easiest way to healthy life by buying your favorite plants</h5>
                     </div>
                     <div className={cx('button')}>
-                        <button>See more</button>
+                        <button onClick={() => {
+                            navigate('/products')
+                        }}>See more</button>
                         <span><IoIosArrowRoundForward style={styleIcon} /></span>
                     </div>
                 </div>
                 <div className={cx('right')}>
                     <div className={cx('list-product')}>
-                        <Product img={img_product01_sl_one} name={"Natural Plants"} price={"1 400 000"} />
-                        <Product img={img_product01_sl_one} name={"Natural Plants"} price={"1 400 000"} />
-                        <Product img={img_product01_sl_one} name={"Natural Plants"} price={"1 400 000"} />
-                        <Product img={img_product01_sl_one} name={"Natural Plants"} price={"1 400 000"} />
-                        <Product img={img_product01_sl_one} name={"Natural Plants"} price={"1 400 000"} />
-                        <Product img={img_product01_sl_one} name={"Natural Plants"} price={"1 400 000"} />
+                        {
+                            product?.map((item, index) => {
+                                if(index < 10){
+                                    return <>
+                                        <Product img={item?.image} name={item?.name} price={item?.price} id={item?.id} code={item?.code} />
+                                    </>
+                                }
+                            })
+                        }
                     </div>
                 </div>
             </div>

@@ -24,6 +24,7 @@ public class ProgressingOrderApi {
 
     @PutMapping("authenticed/api/progressingorder/{orderId}/{statusOrder}")
     public ResponseEntity<?> updateStatusProgressingOrder(@PathVariable int orderId, @PathVariable int statusOrder) {
+        System.err.println("abc");
         return progressingOrderService.updateStatusProgressingOrder(orderId, statusOrder)
                 ? ResponseEntity.ok().body(200)
                 : ResponseEntity.notFound().build();

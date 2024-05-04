@@ -21,6 +21,7 @@ import com.ecommerce_plant.plant.mapping.modelmapping.JwtToken;
 import com.ecommerce_plant.plant.mapping.modelmapping.UserModelMap;
 import com.ecommerce_plant.plant.model.ContactUser;
 import com.ecommerce_plant.plant.model.User;
+import com.ecommerce_plant.plant.service.ImportInvoiceService;
 import com.ecommerce_plant.plant.service.UserService;
 
 /**
@@ -35,6 +36,8 @@ public class UserApi {
     JwtTokenProvider jwtTokenProvider;
     @Autowired
     UserMapping userMapping;
+    @Autowired
+    ImportInvoiceService importInvoiceService;
 
     @PostMapping("authenticed/api/user/")
     public ResponseEntity<?> getInfoUser(@RequestBody Map<String, String> requestBody) {
@@ -96,6 +99,12 @@ public class UserApi {
         }
     }
 
+    @PostMapping("api/user/updatepwd")
+    public ResponseEntity<?> updatePwd(@RequestBody User user) {
+        boolean result = userService.updatePwd(user);
+        return result ? ResponseEntity.ok().body(200) : ResponseEntity.notFound().build();
+    }
+
     @PostMapping("authenticed/api/user/refresh-token")
     public ResponseEntity<?> refreshToken(@RequestBody Map<String, String> requestBody) {
         String jwtTokenOld = requestBody.get("jwtTokenOld");
@@ -151,10 +160,11 @@ public class UserApi {
                 : ResponseEntity.badRequest().body(resultDelete);
     }
 
-    @PostMapping("authenticed/api/verification-email")
+    @PostMapping("api/verification-email")
     public ResponseEntity<?> sendVerificationCodeEmail(@RequestBody User user) {
         System.err.println(user.getEmail());
         String code = userService.sendVerifiCode(user.getEmail());
         return ResponseEntity.ok().body(code);
     }
+
 }

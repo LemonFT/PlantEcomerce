@@ -8,7 +8,7 @@ import { getAllProduct } from "../../../../Data/product";
 import { EffectContext } from "../../../../Provider/EffectProvider";
 import styles from "../index.module.scss";
 
-function HeaderProduct({returnKeySearch}) {
+function HeaderProduct({returnKeySearch, load}) {
     const cx = classNames.bind(styles)
     const inputSearch = useRef(null)
     const styleIcon = { fontSize: '25px' }
@@ -28,6 +28,10 @@ function HeaderProduct({returnKeySearch}) {
     useEffect(() => {
         fetchData()
     }, [])
+
+    useEffect(() => {
+        fetchData()
+    }, [load])
 
     const search = () => {
         returnKeySearch(inputSearch.current.value)

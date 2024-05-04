@@ -8,23 +8,33 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import com.ecommerce_plant.plant.mapping.modelmapping.CategoryNumberProduct;
 import com.ecommerce_plant.plant.model.Product;
 
+/**
+ * @author lemonftdev
+ */
 @Repository
 public class ProductRep {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
     public List<Product> findAllProducts() {
-        String sql = "SELECT * FROM product where  deleted = false";
+        String sql = "SELECT * FROM product where deleted = false";
         return jdbcTemplate.query(sql, BeanPropertyRowMapper.newInstance(Product.class));
     }
 
     @SuppressWarnings("deprecation")
-    public Product findProduct(int product_id) {
+    public Product findProduct(int productId) {
         String sql = "SELECT * FROM product where id = ? and deleted = false";
-        return jdbcTemplate.queryForObject(sql, new Object[] { product_id },
+        return jdbcTemplate.queryForObject(sql, new Object[] { productId },
                 BeanPropertyRowMapper.newInstance(Product.class));
+    }
+
+    public List<CategoryNumberProduct> findNumberProductByCategory() {
+        String sql = "SELECT c.id categoryId, c.name as categoryName, count(p.id) as amount FROM plant_ecommerce_web.product as p right join plant_ecommerce_web.product_category as c on p.category_product_id = c.id group by c.id";
+        return jdbcTemplate.query(sql,
+                BeanPropertyRowMapper.newInstance(CategoryNumberProduct.class));
     }
 
     @SuppressWarnings("deprecation")
@@ -116,6 +126,11 @@ public class ProductRep {
     public boolean updateProductImage(int id, String image) {
         String sql = "UPDATE product SET image = ? where id = ?";
         return jdbcTemplate.update(sql, image, id) > 0;
+    }
+
+    public boolean updateProductNumber(int id, int number) {
+        String sql = "UPDATE product SET amount = ? where id = ?";
+        return jdbcTemplate.update(sql, number, id) > 0;
     }
 
     public boolean hardDeleteProduct(int id) {
